@@ -73,7 +73,7 @@
                     <select id="server-type">
                         <option value="vps">VPS (Virtual Private Server)</option>
                         <option value="dedicated">Dedicated Server</option>
-                        <option value="local">Local Machine (Not recommended)</option>
+                        <option value="local">Local Machine</option>
                     </select>
                 </div>
                 
@@ -86,6 +86,8 @@
                         <option value="ubuntu22">Ubuntu 22.04 LTS</option>
                         <option value="debian11">Debian 11</option>
                         <option value="debian12">Debian 12</option>
+                        <option value="wsl">Windows (WSL)</option>
+                        <option value="macos">macOS</option>
                     </select>
                 </div>
                 
@@ -113,11 +115,64 @@
                 </div>
             </div>
             
+            <div class="system-specific-commands" id="system-specific-commands">
+                <h3>System-Specific Instructions:</h3>
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="linux">Linux</button>
+                    <button class="tab-btn" data-tab="wsl">Windows (WSL)</button>
+                    <button class="tab-btn" data-tab="macos">macOS</button>
+                </div>
+                
+                <div class="tab-content active" id="linux-tab">
+                    <h4>Linux Instructions:</h4>
+                    <ol>
+                        <li>Open your terminal</li>
+                        <li>Copy and paste the command above</li>
+                        <li>Enter your password when prompted</li>
+                        <li>Follow the on-screen instructions</li>
+                    </ol>
+                    <div class="command-example">
+                        <code>sudo systemctl status basedai</code>
+                        <span class="command-desc">Check node status</span>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="wsl-tab">
+                    <h4>Windows (WSL) Instructions:</h4>
+                    <ol>
+                        <li>Open PowerShell or Command Prompt</li>
+                        <li>Launch WSL: <code>wsl</code></li>
+                        <li>Copy and paste the command above</li>
+                        <li>Enter your password when prompted</li>
+                        <li>Follow the on-screen instructions</li>
+                    </ol>
+                    <div class="command-example">
+                        <code>sudo systemctl status basedai</code>
+                        <span class="command-desc">Check node status</span>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="macos-tab">
+                    <h4>macOS Instructions:</h4>
+                    <ol>
+                        <li>Open Terminal</li>
+                        <li>Install Homebrew if not already installed: <code>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code></li>
+                        <li>Copy and paste the command above</li>
+                        <li>Enter your password when prompted</li>
+                        <li>Follow the on-screen instructions</li>
+                    </ol>
+                    <div class="command-example">
+                        <code>sudo launchctl list | grep basedai</code>
+                        <span class="command-desc">Check node status</span>
+                    </div>
+                </div>
+            </div>
+            
             <div class="installation-steps">
-                <h3>Installation Steps:</h3>
+                <h3>General Installation Steps:</h3>
                 <ol>
                     <li>Connect to your server via SSH</li>
-                    <li>Ensure you have sudo permissions</li>
+                    <li>Ensure you have sudo/administrator privileges</li>
                     <li>Paste and run the command above</li>
                     <li>Follow the on-screen instructions</li>
                     <li>Your node will be automatically configured and started</li>
@@ -150,8 +205,8 @@
                     <div class="feature-icon">
                         <i class="fas fa-rocket"></i>
                     </div>
-                    <h3>Quick Installation</h3>
-                    <p>Deploy a validator node in just a few minutes</p>
+                    <h3>Cross-Platform</h3>
+                    <p>Works on Linux, Windows (WSL), and macOS</p>
                 </div>
                 
                 <div class="feature-card">

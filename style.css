@@ -312,6 +312,123 @@ body {
     word-break: break-all;
 }
 
+.system-specific-commands {
+    margin-bottom: 30px;
+}
+
+.system-specific-commands h3 {
+    font-size: 1.3rem;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    color: var(--secondary-color);
+    font-family: 'Orbitron', monospace;
+    font-weight: 500;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.tab-btn:hover {
+    color: var(--primary-color);
+}
+
+.tab-btn.active {
+    color: var(--primary-color);
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--primary-color);
+}
+
+.tab-content {
+    display: none;
+    animation: fadeIn 0.5s ease;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.tab-content h4 {
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.tab-content ol {
+    list-style-type: none;
+    counter-reset: step-counter;
+    margin-bottom: 20px;
+}
+
+.tab-content li {
+    counter-increment: step-counter;
+    margin-bottom: 12px;
+    padding-left: 40px;
+    position: relative;
+}
+
+.tab-content li::before {
+    content: counter(step-counter);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    background: rgba(0, 255, 255, 0.2);
+    border: 1px solid var(--primary-color);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+}
+
+.command-example {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.command-example code {
+    font-family: 'Courier New', monospace;
+    color: var(--success-color);
+    font-size: 0.9rem;
+    flex: 1;
+}
+
+.command-example .command-desc {
+    color: var(--secondary-color);
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
 .installation-steps,
 .requirements-info,
 .support-info {
@@ -541,5 +658,19 @@ body {
     
     .copy-btn {
         align-self: flex-end;
+    }
+    
+    .tabs {
+        flex-direction: column;
+    }
+    
+    .tab-btn {
+        width: 100%;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .tab-btn.active::after {
+        display: none;
     }
 }

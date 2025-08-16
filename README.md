@@ -1,8 +1,9 @@
 # BasedAI Node Installer
 
-A simplified installation tool for BasedAI validator nodes with animated Three.js background
+A cross-platform installation tool for BasedAI validator nodes with animated Three.js background
 
 ## One-Command Installation
+
 
 1. Visit [SOON]
 2. Fill in the form with your information:

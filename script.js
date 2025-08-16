@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
         scene.add(particlesMesh);
         
-        // Create rotating cube
+        // Create rotating cube - positioned at the top
         const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
         const cubeMaterial = new THREE.MeshBasicMaterial({
             color: 0x00ffff,
@@ -168,6 +168,11 @@ document.addEventListener('DOMContentLoaded', function() {
             opacity: 0.7
         });
         const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+        
+        // Position cube at the top of the screen
+        cube.position.y = 3;  // Move cube up
+        cube.position.z = 2;   // Move cube closer to camera
+        
         scene.add(cube);
         
         // Create animated gradient background
@@ -188,6 +193,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // Rotate cube
             cube.rotation.x += 0.01;
             cube.rotation.y += 0.01;
+            
+            // Add floating animation to cube
+            cube.position.y = 3 + Math.sin(Date.now() * 0.001) * 0.2;
             
             // Rotate particles
             particlesMesh.rotation.y += 0.001;
