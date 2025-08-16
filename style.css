@@ -31,8 +31,8 @@ body {
     min-height: 100vh;
 }
 
-/* Unified Background with Three.js */
-#unified-background {
+/* Three.js Background Container */
+#three-container {
     position: fixed;
     top: 0;
     left: 0;
@@ -40,7 +40,6 @@ body {
     height: 100%;
     z-index: -1;
     background: linear-gradient(135deg, #0a0a1a 0%, #0a0a2a 50%, #0a0a1a 100%);
-    overflow: hidden;
 }
 
 .menu-bar {

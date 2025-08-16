@@ -1,10 +1,10 @@
 # BasedAI Node Installer
 
-A simplified installation tool for BasedAI validator nodes
+A simplified installation tool for BasedAI validator nodes with animated Three.js background
 
 ## One-Command Installation
 
-1. Visit [based-node-installer.netlify.app](https://based-node-installer.netlify.app)
+1. Visit [SOON]
 2. Fill in the form with your information:
    - Your wallet address
    - A name for your node
