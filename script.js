@@ -30,16 +30,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const operatingSystem = document.getElementById('operating-system').value;
         
         // Generate installation command with proper line breaks
-        const command = `# Téléchargez le script d'abord
+        const command = `# Download the script first
 curl -sSL https://raw.githubusercontent.com/glowku/based-node-installer/main/install.sh -o install.sh
-
-# Convertissez les fins de ligne de Windows à Linux
+# Convert Windows line endings to Linux
 sed -i 's/\\r$//' install.sh
-
-# Rendez le script exécutable
+# Make the script executable
 chmod +x install.sh
-
-# Exécutez-le avec vos paramètres
+# Run it with your parameters
 ./install.sh "${walletAddress}" "${nodeName}" "${stakeAmount}" "${serverType}" "${operatingSystem}"`;
         
         // Display command with animation
@@ -79,8 +76,74 @@ chmod +x install.sh
             // Add active class to clicked tab and corresponding content
             this.classList.add('active');
             document.getElementById(`${targetTab}-tab`).classList.add('active');
+            
+            // Re-add copy buttons after tab switch
+            setTimeout(addCopyButtonsToCommandLines, 100);
         });
     });
+    
+    // Add copy buttons to command lines
+    function addCopyButtonsToCommandLines() {
+        // For command lines in the installation command section
+        const commandLines = document.querySelectorAll('.command-line');
+        commandLines.forEach(line => {
+            // Remove existing copy button if any
+            const existingBtn = line.querySelector('.copy-line-btn');
+            if (existingBtn) {
+                existingBtn.remove();
+            }
+            
+            const codeElement = line.querySelector('code');
+            if (!codeElement) return;
+            
+            // Check if it's a comment line (starts with #)
+            const isComment = codeElement.textContent.trim().startsWith('#');
+            
+            // Only add copy button if it's not a comment
+            if (!isComment) {
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'copy-line-btn';
+                copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+                
+                copyBtn.addEventListener('click', function() {
+                    navigator.clipboard.writeText(codeElement.textContent).then(function() {
+                        showNotification('Command copied to clipboard!', 'success');
+                    }).catch(function(err) {
+                        showNotification('Error copying command: ' + err, 'error');
+                    });
+                });
+                
+                line.appendChild(copyBtn);
+            }
+        });
+        
+        // For command examples (like sudo systemctl status basedai)
+        const commandExamples = document.querySelectorAll('.command-example');
+        commandExamples.forEach(example => {
+            // Skip if already has a copy button
+            if (example.querySelector('.copy-example-btn')) return;
+            
+            const codeElement = example.querySelector('code');
+            if (!codeElement) return;
+            
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'copy-example-btn';
+            copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+            
+            copyBtn.addEventListener('click', function() {
+                navigator.clipboard.writeText(codeElement.textContent).then(function() {
+                    showNotification('Command copied to clipboard!', 'success');
+                }).catch(function(err) {
+                    showNotification('Error copying command: ' + err, 'error');
+                });
+            });
+            
+            example.appendChild(copyBtn);
+        });
+    }
+    
+    // Call the function to add copy buttons
+    addCopyButtonsToCommandLines();
     
     function animateCommandGeneration(command) {
         // Clear existing command
@@ -110,6 +173,8 @@ chmod +x install.sh
         }, 20);
     }
     
+    let cubeAnimationInterval;
+    
     function animateCubeDuringGeneration() {
         // This function will be called from the Three.js animation loop
         window.isGeneratingCommand = true;
@@ -130,6 +195,7 @@ chmod +x install.sh
                 <span>${message}</span>
             </div>
         `;
+        
         
         // Add notification styles
         const style = document.createElement('style');
@@ -237,7 +303,7 @@ chmod +x install.sh
         const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
         scene.add(particlesMesh);
         
-        // Create rotating cube - 20% smaller and positioned at the top
+        // Create rotating cube - 20% smaller and positioned optimally
         const cubeGeometry = new THREE.BoxGeometry(0.8, 0.8, 0.8); // 20% smaller
         const cubeMaterial = new THREE.MeshBasicMaterial({
             color: 0x00ffff,
@@ -247,10 +313,9 @@ chmod +x install.sh
         });
         const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
         
-        // Position cube at the top of the page
-        cube.position.y = 3.5;  // Position at the top
-        cube.position.x = 0;    // Center horizontally
-        cube.position.z = 2;    // Move cube closer to camera
+        // Position cube lower in the viewport
+        cube.position.y = 1;  // Lowered position
+        cube.position.z = 2;   // Move cube closer to camera
         
         scene.add(cube);
         
@@ -265,36 +330,52 @@ chmod +x install.sh
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
         
+        // Animation variables
+        let baseRotationSpeed = 0.01;
+        let baseParticleSpeed = 0.001;
+        let currentRotationSpeed = baseRotationSpeed;
+        let currentParticleSpeed = baseParticleSpeed;
+        let targetRotationSpeed = baseRotationSpeed;
+        let targetParticleSpeed = baseParticleSpeed;
+        
         // Animation loop
         function animate() {
             requestAnimationFrame(animate);
             
-            // Rotate cube smoothly
-            cube.rotation.x += 0.005;
-            cube.rotation.y += 0.005;
+            // Smooth transition for rotation speed
+            currentRotationSpeed += (targetRotationSpeed - currentRotationSpeed) * 0.1;
+            currentParticleSpeed += (targetParticleSpeed - currentParticleSpeed) * 0.1;
+            
+            // Rotate cube with current speed
+            cube.rotation.x += currentRotationSpeed;
+            cube.rotation.y += currentRotationSpeed;
+            
+            // Add floating animation to cube
+            cube.position.y = 1 + Math.sin(Date.now() * 0.001) * 0.2;
             
             // Special animation during command generation
             if (window.isGeneratingCommand) {
-                // Smooth color transition to green
+                // Change cube color to green with smooth transition
                 const time = Date.now() * 0.001;
                 const colorIntensity = (Math.sin(time) + 1) / 2; // Value between 0 and 1
                 cube.material.color.setRGB(0, colorIntensity, 0);
                 
-                // Smooth pulsing effect
-                const scale = 1 + Math.sin(time * 2) * 0.05;
-                cube.scale.set(scale, scale, scale);
+                // Increase rotation speed
+                targetRotationSpeed = baseRotationSpeed * 3; // 3x faster
+                targetParticleSpeed = baseParticleSpeed * 5; // 5x faster
                 
-                // Subtle glow effect
-                cube.material.opacity = 0.7 + Math.sin(time * 3) * 0.1;
+                // Add pulsing effect
+                cube.material.opacity = 0.7 + Math.sin(time * 3) * 0.2;
             } else {
-                // Reset to normal with smooth transition
+                // Reset to normal
                 cube.material.color.set(0x00ffff);
                 cube.material.opacity = 0.7;
-                cube.scale.set(1, 1, 1);
+                targetRotationSpeed = baseRotationSpeed;
+                targetParticleSpeed = baseParticleSpeed;
             }
             
-            // Rotate particles
-            particlesMesh.rotation.y += 0.001;
+            // Rotate particles with current speed
+            particlesMesh.rotation.y += currentParticleSpeed;
             
             // Animate gradient
             updateGradientTexture(gradientTexture);

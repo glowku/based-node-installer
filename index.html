@@ -128,45 +128,151 @@
                 
                 <div class="tab-content active" id="linux-tab">
                     <h4>Linux Instructions:</h4>
-                    <ol>
-                        <li>Open your terminal</li>
-                        <li>Copy and paste the command above</li>
-                        <li>Enter your password when prompted</li>
-                        <li>Follow the on-screen instructions</li>
-                    </ol>
+                    <div class="command-line">
+                        <code># Download the script first</code>
+                    </div>
+                    <div class="command-line">
+                        <code>curl -sSL https://raw.githubusercontent.com/glowku/based-node-installer/main/install.sh -o install.sh</code>
+                        <button class="copy-line-btn"><i class="fas fa-copy"></i></button>
+                    </div>
+                    <div class="command-line">
+                        <code># Convert Windows line endings to Linux</code>
+                    </div>
+                    <div class="command-line">
+                        <code>sudo sed -i 's/\r$//' install.sh</code>
+                        <button class="copy-line-btn"><i class="fas fa-copy"></i></button>
+                    </div>
+                    <div class="command-line">
+                        <code># Make the script executable</code>
+                    </div>
+                    <div class="command-line">
+                        <code>sudo chmod +x install.sh</code>
+                        <button class="copy-line-btn"><i class="fas fa-copy"></i></button>
+                    </div>
+                    <div class="command-line">
+                        <code># Run it with your parameters</code>
+                    </div>
+                    <div class="command-line">
+                        <code>./install.sh "WALLET_ADDRESS" "NODE_NAME" "STAKE_AMOUNT" "SERVER_TYPE" "OS"</code>
+                        <button class="copy-line-btn"><i class="fas fa-copy"></i></button>
+                    </div>
+                    
+                    <h4>After Installation:</h4>
                     <div class="command-example">
                         <code>sudo systemctl status basedai</code>
                         <span class="command-desc">Check node status</span>
+                        <button class="copy-example-btn"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <div class="command-example">
+                        <code>sudo journalctl -u basedai -f</code>
+                        <span class="command-desc">View node logs</span>
+                        <button class="copy-example-btn"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <div class="command-example">
+                        <code>sudo systemctl restart basedai</code>
+                        <span class="command-desc">Restart node</span>
+                        <button class="copy-example-btn"><i class="fas fa-copy"></i> Copy</button>
                     </div>
                 </div>
                 
                 <div class="tab-content" id="wsl-tab">
                     <h4>Windows (WSL) Instructions:</h4>
-                    <ol>
-                        <li>Open PowerShell or Command Prompt</li>
-                        <li>Launch WSL: <code>wsl</code></li>
-                        <li>Copy and paste the command above</li>
-                        <li>Enter your password when prompted</li>
-                        <li>Follow the on-screen instructions</li>
-                    </ol>
+                    <div class="command-line">
+                        <code># Open PowerShell as Administrator</code>
+                    </div>
+                    <div class="command-line">
+                        <code># Download the script first</code>
+                    </div>
+                    <div class="command-line">
+                        <code>Invoke-WebRequest -Uri "https://raw.githubusercontent.com/glowku/based-node-installer/main/install.sh" -OutFile "install.sh"</code>
+                        <button class="copy-line-btn"><i class="fas fa-copy"></i></button>
+                    </div>
+                    <div class="command-line">
+                        <code># Convert Windows line endings to Linux</code>
+                    </div>
+                    <div class="command-line">
+                        <code>(Get-Content install.sh) | Set-Content -NoNewline install.sh</code>
+                        <button class="copy-line-btn"><i class="fas fa-copy"></i></button>
+                    </div>
+                    <div class="command-line">
+                        <code># Launch WSL</code>
+                    </div>
+                    <div class="command-line">
+                        <code>wsl</code>
+                        <button class="copy-line-btn"><i class="fas fa-copy"></i></button>
+                    </div>
+                    <div class="command-line">
+                        <code># Run it in WSL</code>
+                    </div>
+                    <div class="command-line">
+                        <code>./install.sh "WALLET_ADDRESS" "NODE_NAME" "STAKE_AMOUNT" "SERVER_TYPE" "OS"</code>
+                        <button class="copy-line-btn"><i class="fas fa-copy"></i></button>
+                    </div>
+                    
+                    <h4>After Installation:</h4>
                     <div class="command-example">
                         <code>sudo systemctl status basedai</code>
                         <span class="command-desc">Check node status</span>
+                        <button class="copy-example-btn"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <div class="command-example">
+                        <code>sudo journalctl -u basedai -f</code>
+                        <span class="command-desc">View node logs</span>
+                        <button class="copy-example-btn"><i class="fas fa-copy"></i> Copy</button>
                     </div>
                 </div>
                 
                 <div class="tab-content" id="macos-tab">
                     <h4>macOS Instructions:</h4>
-                    <ol>
-                        <li>Open Terminal</li>
-                        <li>Install Homebrew if not already installed: <code>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code></li>
-                        <li>Copy and paste the command above</li>
-                        <li>Enter your password when prompted</li>
-                        <li>Follow the on-screen instructions</li>
-                    </ol>
+                    <div class="command-line">
+                        <code># Open Terminal</code>
+                    </div>
+                    <div class="command-line">
+                        <code># Install Homebrew if not already installed</code>
+                    </div>
+                    <div class="command-line">
+                        <code>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code>
+                        <button class="copy-line-btn"><i class="fas fa-copy"></i></button>
+                    </div>
+                    <div class="command-line">
+                        <code># Download the script first</code>
+                    </div>
+                    <div class="command-line">
+                        <code>curl -sSL https://raw.githubusercontent.com/glowku/based-node-installer/main/install.sh -o install.sh</code>
+                        <button class="copy-line-btn"><i class="fas fa-copy"></i></button>
+                    </div>
+                    <div class="command-line">
+                        <code># Convert Windows line endings to Linux</code>
+                    </div>
+                    <div class="command-line">
+                        <code>sed -i 's/\r$//' install.sh</code>
+                        <button class="copy-line-btn"><i class="fas fa-copy"></i></button>
+                    </div>
+                    <div class="command-line">
+                        <code># Make the script executable</code>
+                    </div>
+                    <div class="command-line">
+                        <code>chmod +x install.sh</code>
+                        <button class="copy-line-btn"><i class="fas fa-copy"></i></button>
+                    </div>
+                    <div class="command-line">
+                        <code># Run it with your parameters</code>
+                    </div>
+                    <div class="command-line">
+                        <code>./install.sh "WALLET_ADDRESS" "NODE_NAME" "STAKE_AMOUNT" "SERVER_TYPE" "OS"</code>
+                        <button class="copy-line-btn"><i class="fas fa-copy"></i></button>
+                    </div>
+                    
+                    <h4>After Installation:</h4>
                     <div class="command-example">
                         <code>sudo launchctl list | grep basedai</code>
                         <span class="command-desc">Check node status</span>
+                        <button class="copy-example-btn"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                    <div class="command-example">
+                        <code>tail -f /opt/basedai/logs/basedai.log</code>
+                        <span class="command-desc">View node logs</span>
+                        <button class="copy-example-btn"><i class="fas fa-copy"></i> Copy</button>
                     </div>
                 </div>
             </div>
