@@ -4,7 +4,6 @@ A cross-platform installation tool for BasedAI validator nodes with animated Thr
 
 ## One-Command Installation
 
-
 1. Visit [SOON]
 2. Fill in the form with your information:
    - Your wallet address

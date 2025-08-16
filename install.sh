@@ -4,6 +4,10 @@
 # This script installs and configures a BasedAI validator node
 # Compatible with Linux, WSL, and different operating systems
 
+# Fix line ending issues by removing carriage returns
+# This ensures the script works on all systems
+sed -i 's/\r$//' "$0"
+
 # Check arguments
 if [ "$#" -ne 5 ]; then
     echo "Usage: $0 <WALLET_ADDRESS> <NODE_NAME> <STAKE_AMOUNT> <SERVER_TYPE> <OS>"
@@ -26,11 +30,15 @@ echo "╚═╝  ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚�
 echo "                                                                      NODE INSTALLER"
 echo ""
 
-# Detect operating system
+# Detect operating system with detailed information
 detect_os() {
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         if grep -q Microsoft /proc/version; then
             echo "wsl"
+        elif grep -q Ubuntu /etc/os-release; then
+            echo "ubuntu"
+        elif grep -q Debian /etc/os-release; then
+            echo "debian"
         else
             echo "linux"
         fi
@@ -50,6 +58,38 @@ detect_os() {
 OS_TYPE=$(detect_os)
 echo "🖥️  Detected OS: $OS_TYPE"
 
+# Get detailed OS information
+get_detailed_os() {
+    case "$OS_TYPE" in
+        "ubuntu")
+            if command -v lsb_release &> /dev/null; then
+                lsb_release -rs
+            else
+                grep -oP 'VERSION_ID="\K[^"]+' /etc/os-release
+            fi
+            ;;
+        "debian")
+            if command -v lsb_release &> /dev/null; then
+                lsb_release -rs
+            else
+                grep -oP 'VERSION_ID="\K[^"]+' /etc/os-release
+            fi
+            ;;
+        "wsl")
+            echo "WSL Environment"
+            ;;
+        "macos")
+            sw_vers -productVersion
+            ;;
+        *)
+            echo "Unknown"
+            ;;
+    esac
+}
+
+OS_VERSION=$(get_detailed_os)
+echo "📋 OS Version: $OS_VERSION"
+
 # Check if user is root or has sudo privileges
 check_privileges() {
     if [[ $EUID -eq 0 ]]; then
@@ -60,6 +100,7 @@ check_privileges() {
             return 0  # User has sudo privileges
         else
             echo "❌ This script requires root privileges. Please run with sudo."
+            echo "💡 Try: sudo $0 $@"
             exit 1
         fi
     else
@@ -75,8 +116,10 @@ update_system() {
     echo "🔄 Updating system..."
     
     case "$OS_TYPE" in
-        "linux"|"wsl")
-            sudo apt-get update && sudo apt-get upgrade -y
+        "ubuntu"|"debian"|"wsl")
+            sudo apt-get update
+            sudo apt-get upgrade -y
+            sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
             ;;
         "macos")
             # Check if Homebrew is installed
@@ -104,8 +147,8 @@ install_dependencies() {
     echo "📦 Installing dependencies..."
     
     case "$OS_TYPE" in
-        "linux"|"wsl")
-            sudo apt-get install -y curl wget jq docker.io docker-compose ufail2ban
+        "ubuntu"|"debian"|"wsl")
+            sudo apt-get install -y curl wget jq docker.io docker-compose ufw fail2ban gnupg2
             ;;
         "macos")
             brew install curl wget jq docker docker-compose
@@ -127,9 +170,12 @@ start_docker() {
     echo "🐳 Starting Docker..."
     
     case "$OS_TYPE" in
-        "linux"|"wsl")
+        "ubuntu"|"debian"|"wsl")
             sudo systemctl start docker
             sudo systemctl enable docker
+            # Add current user to docker group
+            sudo usermod -aG docker $USER
+            echo "⚠️  You may need to log out and log back in for docker group changes to take effect."
             ;;
         "macos")
             # On macOS, Docker Desktop is managed differently
@@ -153,7 +199,7 @@ create_user() {
     echo "👤 Creating 'basedai' user..."
     
     case "$OS_TYPE" in
-        "linux"|"wsl")
+        "ubuntu"|"debian"|"wsl")
             if ! id "basedai" &>/dev/null; then
                 sudo useradd -m -s /bin/bash basedai
                 sudo usermod -aG docker basedai
@@ -187,10 +233,11 @@ create_directories() {
     echo "📁 Creating directories..."
     
     case "$OS_TYPE" in
-        "linux"|"wsl"|"macos")
+        "ubuntu"|"debian"|"wsl"|"macos")
             sudo mkdir -p /opt/basedai
             sudo mkdir -p /opt/basedai/data
             sudo mkdir -p /opt/basedai/config
+            sudo mkdir -p /opt/basedai/logs
             sudo chown -R basedai:basedai /opt/basedai
             ;;
         "windows")
@@ -210,7 +257,7 @@ download_binary() {
     echo "⬇️  Downloading BasedAI binary..."
     
     case "$OS_TYPE" in
-        "linux"|"wsl"|"macos")
+        "ubuntu"|"debian"|"wsl"|"macos")
             cd /opt/basedai
             sudo -u basedai wget -O based https://github.com/based-ai/based/releases/download/v1.0.0/based-linux-amd64
             sudo chmod +x based
@@ -232,7 +279,7 @@ generate_config() {
     echo "⚙️  Generating configuration..."
     
     case "$OS_TYPE" in
-        "linux"|"wsl"|"macos")
+        "ubuntu"|"debian"|"wsl"|"macos")
             cat > /opt/basedai/config/config.json <<EOF
 {
   "node": {
@@ -247,7 +294,9 @@ generate_config() {
   },
   "server": {
     "type": "$SERVER_TYPE",
-    "os": "$OS"
+    "os": "$OS",
+    "detected_os": "$OS_TYPE",
+    "os_version": "$OS_VERSION"
   }
 }
 EOF
@@ -269,7 +318,7 @@ configure_firewall() {
     echo "🔥 Configuring firewall..."
     
     case "$OS_TYPE" in
-        "linux"|"wsl")
+        "ubuntu"|"debian"|"wsl")
             sudo ufw allow 22/tcp
             sudo ufw allow 30333/tcp
             sudo ufw allow 30333/udp
@@ -299,7 +348,7 @@ create_service() {
     echo "📝 Creating systemd service..."
     
     case "$OS_TYPE" in
-        "linux"|"wsl")
+        "ubuntu"|"debian"|"wsl")
             cat > /etc/systemd/system/basedai.service <<EOF
 [Unit]
 Description=BasedAI Validator Node
@@ -341,9 +390,9 @@ EOF
     <key>WorkingDirectory</key>
     <string>/opt/basedai</string>
     <key>StandardOutPath</key>
-    <string>/var/log/basedai.log</string>
+    <string>/opt/basedai/logs/basedai.log</string>
     <key>StandardErrorPath</key>
-    <string>/var/log/basedai.log</string>
+    <string>/opt/basedai/logs/basedai.log</string>
 </dict>
 </plist>
 EOF
@@ -367,7 +416,7 @@ start_service() {
     echo "🚀 Starting BasedAI service..."
     
     case "$OS_TYPE" in
-        "linux"|"wsl")
+        "ubuntu"|"debian"|"wsl")
             sudo systemctl daemon-reload
             sudo systemctl start basedai
             sudo systemctl enable basedai
@@ -398,10 +447,11 @@ echo "   Stake Amount: $STAKE_AMOUNT BASED"
 echo "   Server Type: $SERVER_TYPE"
 echo "   Operating System: $OS"
 echo "   Detected OS: $OS_TYPE"
+echo "   OS Version: $OS_VERSION"
 echo ""
 echo "🔍 Useful commands:"
 case "$OS_TYPE" in
-    "linux"|"wsl")
+    "ubuntu"|"debian"|"wsl")
         echo "   Check status: sudo systemctl status basedai"
         echo "   View logs: sudo journalctl -u basedai -f"
         echo "   Restart: sudo systemctl restart basedai"
@@ -409,7 +459,7 @@ case "$OS_TYPE" in
         ;;
     "macos")
         echo "   Check status: sudo launchctl list | grep basedai"
-        echo "   View logs: tail -f /var/log/basedai.log"
+        echo "   View logs: tail -f /opt/basedai/logs/basedai.log"
         echo "   Restart: sudo launchctl unload /Library/LaunchDaemons/com.basedai.node.plist && sudo launchctl load /Library/LaunchDaemons/com.basedai.node.plist"
         echo "   Stop: sudo launchctl unload /Library/LaunchDaemons/com.basedai.node.plist"
         ;;

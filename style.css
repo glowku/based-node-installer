@@ -104,7 +104,7 @@ body {
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 100px 20px 20px;
+    padding: 500px 20px 20px; /* Increased top padding from 100px to 500px */
     position: relative;
     z-index: 1;
 }
@@ -302,6 +302,7 @@ body {
     border-radius: 8px;
     padding: 15px;
     overflow-x: auto;
+    position: relative;
 }
 
 .command-box code {
@@ -310,6 +311,7 @@ body {
     font-size: 1rem;
     white-space: pre-wrap;
     word-break: break-all;
+    transition: all 0.3s ease;
 }
 
 .system-specific-commands {

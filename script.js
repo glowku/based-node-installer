@@ -6,7 +6,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const commandSection = document.getElementById('command-section');
     const installCommand = document.getElementById('install-command');
     const copyBtn = document.getElementById('copy-btn');
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
     
+    // Form submission handler
     installForm.addEventListener('submit', function(e) {
         e.preventDefault();
         
@@ -20,8 +23,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Generate installation command
         const command = `curl -sSL https://raw.githubusercontent.com/glowku/based-node-installer/main/install.sh | bash -s -- "${walletAddress}" "${nodeName}" "${stakeAmount}" "${serverType}" "${operatingSystem}"`;
         
-        // Display command
-        installCommand.textContent = command;
+        // Display command with animation
+        animateCommandGeneration(command);
         
         // Show command section
         commandSection.classList.remove('hidden');
@@ -33,6 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
         showNotification('Command generated successfully!', 'success');
     });
     
+    // Copy button handler
     copyBtn.addEventListener('click', function() {
         // Copy command to clipboard
         navigator.clipboard.writeText(installCommand.textContent).then(function() {
@@ -43,6 +47,93 @@ document.addEventListener('DOMContentLoaded', function() {
             showNotification('Error copying command: ' + err, 'error');
         });
     });
+    
+    // Tab switching functionality
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const targetTab = this.getAttribute('data-tab');
+            
+            // Remove active class from all tabs and contents
+            tabBtns.forEach(b => b.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            
+            // Add active class to clicked tab and corresponding content
+            this.classList.add('active');
+            document.getElementById(`${targetTab}-tab`).classList.add('active');
+        });
+    });
+    
+    function animateCommandGeneration(command) {
+        // Clear existing command
+        installCommand.textContent = '';
+        
+        // Create typing animation
+        let i = 0;
+        const typeWriter = setInterval(() => {
+            if (i < command.length) {
+                installCommand.textContent += command.charAt(i);
+                i++;
+                
+                // Add random color changes during typing
+                if (i % 10 === 0) {
+                    const colors = ['#00ff00', '#00ffff', '#ff00ff', '#ffff00', '#ff6600'];
+                    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                    installCommand.style.color = randomColor;
+                }
+            } else {
+                clearInterval(typeWriter);
+                // Final color
+                installCommand.style.color = '#00ff00';
+                
+                // Add glow effect
+                installCommand.style.textShadow = '0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00';
+                
+                // Create particle explosion effect
+                createParticleExplosion();
+            }
+        }, 20);
+    }
+    
+    function createParticleExplosion() {
+        const commandBox = document.querySelector('.command-box');
+        const rect = commandBox.getBoundingClientRect();
+        
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'command-particle';
+            particle.style.left = rect.left + rect.width / 2 + 'px';
+            particle.style.top = rect.top + rect.height / 2 + 'px';
+            particle.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+            
+            document.body.appendChild(particle);
+            
+            // Animate particle
+            const angle = (Math.PI * 2 * i) / 30;
+            const velocity = 5 + Math.random() * 10;
+            const lifetime = 1000 + Math.random() * 1000;
+            
+            let posX = 0;
+            let posY = 0;
+            let opacity = 1;
+            
+            const animateParticle = () => {
+                posX += Math.cos(angle) * velocity;
+                posY += Math.sin(angle) * velocity;
+                opacity -= 0.02;
+                
+                particle.style.transform = `translate(${posX}px, ${posY}px)`;
+                particle.style.opacity = opacity;
+                
+                if (opacity > 0) {
+                    requestAnimationFrame(animateParticle);
+                } else {
+                    document.body.removeChild(particle);
+                }
+            };
+            
+            requestAnimationFrame(animateParticle);
+        }
+    }
     
     function showNotification(message, type) {
         // Create notification element
@@ -79,9 +170,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             .notification.success {
                 border-color: rgba(76, 175, 80, 0.5);
+                box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
             }
             .notification.error {
                 border-color: rgba(244, 67, 54, 0.5);
+                box-shadow: 0 0 20px rgba(244, 67, 54, 0.3);
             }
             .notification-content {
                 display: flex;
@@ -96,6 +189,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             .notification.error i {
                 color: #f44336;
+            }
+            .command-particle {
+                position: fixed;
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                pointer-events: none;
+                z-index: 9999;
             }
         `;
         document.head.appendChild(style);
@@ -159,7 +260,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
         scene.add(particlesMesh);
         
-        // Create rotating cube - positioned at the top
+        // Create rotating cube - positioned lower in the viewport
         const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
         const cubeMaterial = new THREE.MeshBasicMaterial({
             color: 0x00ffff,
@@ -169,8 +270,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
         
-        // Position cube at the top of the screen
-        cube.position.y = 3;  // Move cube up
+        // Position cube lower in the viewport (moved down by 200px equivalent)
+        cube.position.y = 1;  // Lowered from 3 to 1
         cube.position.z = 2;   // Move cube closer to camera
         
         scene.add(cube);
@@ -195,7 +296,7 @@ document.addEventListener('DOMContentLoaded', function() {
             cube.rotation.y += 0.01;
             
             // Add floating animation to cube
-            cube.position.y = 3 + Math.sin(Date.now() * 0.001) * 0.2;
+            cube.position.y = 1 + Math.sin(Date.now() * 0.001) * 0.2;
             
             // Rotate particles
             particlesMesh.rotation.y += 0.001;
