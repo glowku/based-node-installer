@@ -1,20 +1,22 @@
-# BasedAI Node Installer
+# BasedAI Node Installer & Monitor
 
-A cross-platform installation tool for BasedAI validator nodes with animated Three.js background
+A comprehensive solution for installing and monitoring BasedAI validator nodes with animated Three.js background
 
-## One-Command Installation
+## Installation Instructions
 
-1. Visit [SOON]
-2. Fill in the form with your information:
-   - Your wallet address
-   - A name for your node
-   - Stake amount (minimum 1000 BASED)
-   - Server type
-   - Operating system
-3. Copy the generated command
-4. Run it in your terminal
+### Linux / WSL / macOS
 
-## Manual Installation
+The recommended way to install the node is to download and run the script manually:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/glowku/based-node-installer/main/install.sh | bash -s -- <WALLET_ADDRESS> <NODE_NAME> <STAKE_AMOUNT> <SERVER_TYPE> <OS>
+# Download the script
+curl -sSL https://raw.githubusercontent.com/glowku/based-node-installer/main/install.sh -o install.sh
+
+# Convert line endings from Windows to Linux
+sed -i 's/\r$//' install.sh
+
+# Make the script executable
+chmod +x install.sh
+
+# Run the script with your parameters
+./install.sh "YOUR_WALLET_ADDRESS" "YOUR_NODE_NAME" "STAKE_AMOUNT" "SERVER_TYPE" "OS"

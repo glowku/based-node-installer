@@ -9,6 +9,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
     
+    // Navigation buttons
+    document.getElementById('monitor-button').addEventListener('click', function() {
+        window.location.href = 'monitor.html';
+    });
+    
+    document.getElementById('status-button').addEventListener('click', function() {
+        window.open('https://tools-status-serverbasedai.onrender.com/', '_blank');
+    });
+    
     // Form submission handler
     installForm.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -20,8 +29,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const serverType = document.getElementById('server-type').value;
         const operatingSystem = document.getElementById('operating-system').value;
         
-        // Generate installation command
-        const command = `curl -sSL https://raw.githubusercontent.com/glowku/based-node-installer/main/install.sh | bash -s -- "${walletAddress}" "${nodeName}" "${stakeAmount}" "${serverType}" "${operatingSystem}"`;
+        // Generate installation command with proper line breaks
+        const command = `# Téléchargez le script d'abord
+curl -sSL https://raw.githubusercontent.com/glowku/based-node-installer/main/install.sh -o install.sh
+
+# Convertissez les fins de ligne de Windows à Linux
+sed -i 's/\\r$//' install.sh
+
+# Rendez le script exécutable
+chmod +x install.sh
+
+# Exécutez-le avec vos paramètres
+./install.sh "${walletAddress}" "${nodeName}" "${stakeAmount}" "${serverType}" "${operatingSystem}"`;
         
         // Display command with animation
         animateCommandGeneration(command);
@@ -67,6 +86,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear existing command
         installCommand.textContent = '';
         
+        // Animate cube during command generation
+        animateCubeDuringGeneration();
+        
         // Create typing animation
         let i = 0;
         const typeWriter = setInterval(() => {
@@ -74,65 +96,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 installCommand.textContent += command.charAt(i);
                 i++;
                 
-                // Add random color changes during typing
-                if (i % 10 === 0) {
-                    const colors = ['#00ff00', '#00ffff', '#ff00ff', '#ffff00', '#ff6600'];
-                    const randomColor = colors[Math.floor(Math.random() * colors.length)];
-                    installCommand.style.color = randomColor;
-                }
+                // Keep command color consistent
+                installCommand.style.color = '#00ff00';
             } else {
                 clearInterval(typeWriter);
-                // Final color
-                installCommand.style.color = '#00ff00';
                 
                 // Add glow effect
                 installCommand.style.textShadow = '0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00';
                 
-                // Create particle explosion effect
-                createParticleExplosion();
+                // Stop cube animation
+                stopCubeAnimation();
             }
         }, 20);
     }
     
-    function createParticleExplosion() {
-        const commandBox = document.querySelector('.command-box');
-        const rect = commandBox.getBoundingClientRect();
-        
-        for (let i = 0; i < 30; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'command-particle';
-            particle.style.left = rect.left + rect.width / 2 + 'px';
-            particle.style.top = rect.top + rect.height / 2 + 'px';
-            particle.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
-            
-            document.body.appendChild(particle);
-            
-            // Animate particle
-            const angle = (Math.PI * 2 * i) / 30;
-            const velocity = 5 + Math.random() * 10;
-            const lifetime = 1000 + Math.random() * 1000;
-            
-            let posX = 0;
-            let posY = 0;
-            let opacity = 1;
-            
-            const animateParticle = () => {
-                posX += Math.cos(angle) * velocity;
-                posY += Math.sin(angle) * velocity;
-                opacity -= 0.02;
-                
-                particle.style.transform = `translate(${posX}px, ${posY}px)`;
-                particle.style.opacity = opacity;
-                
-                if (opacity > 0) {
-                    requestAnimationFrame(animateParticle);
-                } else {
-                    document.body.removeChild(particle);
-                }
-            };
-            
-            requestAnimationFrame(animateParticle);
-        }
+    function animateCubeDuringGeneration() {
+        // This function will be called from the Three.js animation loop
+        window.isGeneratingCommand = true;
+    }
+    
+    function stopCubeAnimation() {
+        // This function will be called from the Three.js animation loop
+        window.isGeneratingCommand = false;
     }
     
     function showNotification(message, type) {
@@ -189,14 +174,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             .notification.error i {
                 color: #f44336;
-            }
-            .command-particle {
-                position: fixed;
-                width: 6px;
-                height: 6px;
-                border-radius: 50%;
-                pointer-events: none;
-                z-index: 9999;
             }
         `;
         document.head.appendChild(style);
@@ -260,8 +237,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
         scene.add(particlesMesh);
         
-        // Create rotating cube - positioned lower in the viewport
-        const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
+        // Create rotating cube - 20% smaller and positioned at the top
+        const cubeGeometry = new THREE.BoxGeometry(0.8, 0.8, 0.8); // 20% smaller
         const cubeMaterial = new THREE.MeshBasicMaterial({
             color: 0x00ffff,
             wireframe: true,
@@ -270,9 +247,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
         
-        // Position cube lower in the viewport (moved down by 200px equivalent)
-        cube.position.y = 1;  // Lowered from 3 to 1
-        cube.position.z = 2;   // Move cube closer to camera
+        // Position cube at the top of the page
+        cube.position.y = 3.5;  // Position at the top
+        cube.position.x = 0;    // Center horizontally
+        cube.position.z = 2;    // Move cube closer to camera
         
         scene.add(cube);
         
@@ -291,12 +269,29 @@ document.addEventListener('DOMContentLoaded', function() {
         function animate() {
             requestAnimationFrame(animate);
             
-            // Rotate cube
-            cube.rotation.x += 0.01;
-            cube.rotation.y += 0.01;
+            // Rotate cube smoothly
+            cube.rotation.x += 0.005;
+            cube.rotation.y += 0.005;
             
-            // Add floating animation to cube
-            cube.position.y = 1 + Math.sin(Date.now() * 0.001) * 0.2;
+            // Special animation during command generation
+            if (window.isGeneratingCommand) {
+                // Smooth color transition to green
+                const time = Date.now() * 0.001;
+                const colorIntensity = (Math.sin(time) + 1) / 2; // Value between 0 and 1
+                cube.material.color.setRGB(0, colorIntensity, 0);
+                
+                // Smooth pulsing effect
+                const scale = 1 + Math.sin(time * 2) * 0.05;
+                cube.scale.set(scale, scale, scale);
+                
+                // Subtle glow effect
+                cube.material.opacity = 0.7 + Math.sin(time * 3) * 0.1;
+            } else {
+                // Reset to normal with smooth transition
+                cube.material.color.set(0x00ffff);
+                cube.material.opacity = 0.7;
+                cube.scale.set(1, 1, 1);
+            }
             
             // Rotate particles
             particlesMesh.rotation.y += 0.001;

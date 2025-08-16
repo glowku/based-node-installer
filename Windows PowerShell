@@ -1,0 +1,13 @@
+# Open PowerShell as Administrator
+
+# Download the script
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/glowku/based-node-installer/main/install.sh" -OutFile "install.sh"
+
+# Convert line endings
+(Get-Content install.sh) | Set-Content -NoNewline install.sh
+
+# Make the script executable (not needed in PowerShell, but for WSL)
+chmod +x install.sh
+
+# Run the script in WSL
+wsl -d Ubuntu -u root -e ./install.sh "YOUR_WALLET_ADDRESS" "YOUR_NODE_NAME" "STAKE_AMOUNT" "SERVER_TYPE" "OS"

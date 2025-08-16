@@ -1,11 +1,10 @@
 #!/bin/bash
 
-# BasedAI Node Installer Script
+# Based Node Installer
 # This script installs and configures a BasedAI validator node
 # Compatible with Linux, WSL, and different operating systems
 
 # Fix line ending issues by removing carriage returns
-# This ensures the script works on all systems
 sed -i 's/\r$//' "$0"
 
 # Check arguments
@@ -20,14 +19,15 @@ STAKE_AMOUNT=$3
 SERVER_TYPE=$4
 OS=$5
 
-# Display BasedAI logo
-echo "██████╗ ███████╗████████╗██████╗  ██████╗      ██████╗ ██████╗  █████╗ ████████╗"
-echo "██╔══██╗██╔════╝╚══██╔══╝██╔══██╗██╔═══██╗    ██╔════╝ ██╔══██╗██╔══██╗╚══██╔══╝"
-echo "██████╔╝█████╗     ██║   ██████╔╝██║   ██║    ██║  ███╗██████╔╝███████║   ██║   "
-echo "██╔══██╗██╔══╝     ██║   ██╔══██╗██║   ██║    ██║   ██║██╔══██╗██╔══██║   ██║   "
-echo "██║  ██║███████╗   ██║   ██║  ██║╚██████╔╝    ╚██████╔╝██║  ██║██║  ██║   ██║   "
-echo "╚═╝  ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝      ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   "
-echo "                                                                      NODE INSTALLER"
+# Display Based Node logo
+echo "░▒▓███████▓▒░ ░▒▓██████▓▒░ ░▒▓███████▓▒░▒▓████████▓▒░▒▓███████▓▒░       ░▒▓███████▓▒░ ░▒▓██████▓▒░░▒▓███████▓▒░░▒▓████████▓▒░ "
+echo "░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░        "
+echo "░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░        "
+echo "░▒▓███████▓▒░░▒▓████████▓▒░░▒▓██████▓▒░░▒▓██████▓▒░ ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓██████▓▒░   "
+echo "░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░        "
+echo "░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░        "
+echo "░▒▓███████▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓███████▓▒░░▒▓████████▓▒░▒▓███████▓▒░       ░▒▓█▓▒░░▒▓█▓▒░░▒▓██████▓▒░░▒▓███████▓▒░░▒▓████████▓▒░"
+echo "                                                                      NODE easy INSTALLER"
 echo ""
 
 # Detect operating system with detailed information
@@ -44,11 +44,7 @@ detect_os() {
         fi
     elif [[ "$OSTYPE" == "darwin"* ]]; then
         echo "macos"
-    elif [[ "$OSTYPE" == "cygwin" ]]; then
-        echo "windows"
-    elif [[ "$OSTYPE" == "msys" ]]; then
-        echo "windows"
-    elif [[ "$OSTYPE" == "win32" ]]; then
+    elif [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]]; then
         echo "windows"
     else
         echo "unknown"
@@ -119,7 +115,7 @@ update_system() {
         "ubuntu"|"debian"|"wsl")
             sudo apt-get update
             sudo apt-get upgrade -y
-            sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+            sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common gnupg2
             ;;
         "macos")
             # Check if Homebrew is installed
@@ -148,13 +144,13 @@ install_dependencies() {
     
     case "$OS_TYPE" in
         "ubuntu"|"debian"|"wsl")
-            sudo apt-get install -y curl wget jq docker.io docker-compose ufw fail2ban gnupg2
+            sudo apt-get install -y curl wget jq software-properties-common apt-transport-https ca-certificates gnupg2
             ;;
         "macos")
-            brew install curl wget jq docker docker-compose
+            brew install curl wget jq
             ;;
         "windows")
-            echo "⚠️  On Windows, please install Docker Desktop manually."
+            echo "⚠️  On Windows, please install dependencies manually."
             ;;
         *)
             echo "❌ Unsupported operating system: $OS_TYPE"
@@ -165,34 +161,48 @@ install_dependencies() {
 
 install_dependencies
 
-# Start Docker based on OS
-start_docker() {
-    echo "🐳 Starting Docker..."
+# Install Docker based on OS
+install_docker() {
+    echo "🐳 Installing Docker..."
     
     case "$OS_TYPE" in
         "ubuntu"|"debian"|"wsl")
-            sudo systemctl start docker
-            sudo systemctl enable docker
-            # Add current user to docker group
-            sudo usermod -aG docker $USER
-            echo "⚠️  You may need to log out and log back in for docker group changes to take effect."
+            # Check if Docker is already installed
+            if ! command -v docker &> /dev/null; then
+                echo "Installing Docker..."
+                # Install Docker using official repository
+                sudo apt-get update
+                sudo apt-get install -y docker.io docker-compose containerd runc
+                sudo systemctl start docker
+                sudo systemctl enable docker
+                # Add current user to docker group
+                sudo usermod -aG docker $USER
+                echo "⚠️  You may need to log out and log back in for docker group changes to take effect."
+            else
+                echo "Docker is already installed."
+                sudo systemctl start docker
+                sudo systemctl enable docker
+            fi
             ;;
         "macos")
-            # On macOS, Docker Desktop is managed differently
-            open -a Docker
-            echo "Please ensure Docker Desktop is running."
+            # Check if Docker Desktop is installed
+            if ! command -v docker &> /dev/null; then
+                echo "Please install Docker Desktop manually from: https://www.docker.com/products/docker-desktop"
+            else
+                echo "Docker is already installed."
+                open -a Docker
+            fi
             ;;
         "windows")
-            echo "⚠️  On Windows, please start Docker Desktop manually."
+            echo "⚠️  On Windows, please install Docker Desktop manually from: https://www.docker.com/products/docker-desktop"
             ;;
         *)
             echo "❌ Unsupported operating system: $OS_TYPE"
-            exit 1
             ;;
     esac
 }
 
-start_docker
+install_docker
 
 # Create dedicated user for the node
 create_user() {
@@ -221,7 +231,6 @@ create_user() {
             ;;
         *)
             echo "❌ Unsupported operating system: $OS_TYPE"
-            exit 1
             ;;
     esac
 }
@@ -245,7 +254,6 @@ create_directories() {
             ;;
         *)
             echo "❌ Unsupported operating system: $OS_TYPE"
-            exit 1
             ;;
     esac
 }
@@ -259,7 +267,22 @@ download_binary() {
     case "$OS_TYPE" in
         "ubuntu"|"debian"|"wsl"|"macos")
             cd /opt/basedai
-            sudo -u basedai wget -O based https://github.com/based-ai/based/releases/download/v1.0.0/based-linux-amd64
+            # Try to download with retry mechanism
+            for i in {1..3}; do
+                if sudo -u basedai wget -O based https://github.com/based-ai/based/releases/download/v1.0.0/based-linux-amd64; then
+                    break
+                else
+                    echo "Download attempt $i failed. Retrying..."
+                    sleep 2
+                fi
+            done
+            
+            if [ ! -f based ]; then
+                echo "❌ Failed to download BasedAI binary. Please check your internet connection."
+                echo "You can manually download it from: https://github.com/based-ai/based/releases"
+                exit 1
+            fi
+            
             sudo chmod +x based
             ;;
         "windows")
@@ -267,7 +290,6 @@ download_binary() {
             ;;
         *)
             echo "❌ Unsupported operating system: $OS_TYPE"
-            exit 1
             ;;
     esac
 }
@@ -280,6 +302,7 @@ generate_config() {
     
     case "$OS_TYPE" in
         "ubuntu"|"debian"|"wsl"|"macos")
+            sudo -u basedai mkdir -p /opt/basedai/config
             cat > /opt/basedai/config/config.json <<EOF
 {
   "node": {
@@ -306,7 +329,6 @@ EOF
             ;;
         *)
             echo "❌ Unsupported operating system: $OS_TYPE"
-            exit 1
             ;;
     esac
 }
@@ -319,10 +341,19 @@ configure_firewall() {
     
     case "$OS_TYPE" in
         "ubuntu"|"debian"|"wsl")
-            sudo ufw allow 22/tcp
-            sudo ufw allow 30333/tcp
-            sudo ufw allow 30333/udp
-            sudo ufw --force enable
+            if command -v ufw &> /dev/null; then
+                sudo ufw allow 22/tcp
+                sudo ufw allow 30333/tcp
+                sudo ufw allow 30333/udp
+                sudo ufw --force enable
+            else
+                echo "⚠️  UFW not found. Installing UFW..."
+                sudo apt-get install -y ufw
+                sudo ufw allow 22/tcp
+                sudo ufw allow 30333/tcp
+                sudo ufw allow 30333/udp
+                sudo ufw --force enable
+            fi
             ;;
         "macos")
             # On macOS, we use pfctl
@@ -336,7 +367,6 @@ configure_firewall() {
             ;;
         *)
             echo "❌ Unsupported operating system: $OS_TYPE"
-            exit 1
             ;;
     esac
 }
@@ -404,7 +434,6 @@ EOF
             ;;
         *)
             echo "❌ Unsupported operating system: $OS_TYPE"
-            exit 1
             ;;
     esac
 }
@@ -429,7 +458,6 @@ start_service() {
             ;;
         *)
             echo "❌ Unsupported operating system: $OS_TYPE"
-            exit 1
             ;;
     esac
 }
@@ -472,4 +500,8 @@ echo "🌐 Your node is now synchronizing with the BasedAI network."
 echo "   This may take several hours depending on your internet connection."
 echo ""
 echo "📚 For more information, check the documentation: https://docs.basedlabs.net"
+echo ""
+echo "🔧 Node Monitoring Tools:"
+echo "   Web Interface: https://your-domain.com/monitor (if configured)"
+echo "   Command Line: /opt/basedai/monitor.sh"
 echo ""
