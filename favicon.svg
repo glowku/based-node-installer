@@ -1,0 +1,112 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Dégradés dynamiques avec variations rapides -->
+    <linearGradient id="topGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00ffff;stop-opacity:1">
+        <animate attributeName="stop-color" values="#00ffff;#ffffff;#00ffff;#0080ff;#00ffff" dur="2s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" style="stop-color:#0080ff;stop-opacity:1">
+        <animate attributeName="stop-color" values="#0080ff;#00ffff;#ffffff;#0080ff;#0080ff" dur="2s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+    
+    <linearGradient id="leftGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#004080;stop-opacity:1">
+        <animate attributeName="stop-color" values="#004080;#0080ff;#00ffff;#004080;#004080" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" style="stop-color:#002040;stop-opacity:1">
+        <animate attributeName="stop-color" values="#002040;#004080;#0080ff;#002040;#002040" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+    
+    <linearGradient id="rightGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#002040;stop-opacity:1">
+        <animate attributeName="stop-color" values="#002040;#004080;#0080ff;#002040;#002040" dur="2s" begin="1s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" style="stop-color:#001020;stop-opacity:1">
+        <animate attributeName="stop-color" values="#001020;#002040;#004080;#001020;#001020" dur="2s" begin="1s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+    
+    <!-- Effet de lueur intense -->
+    <filter id="intenseGlow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Cube occupant tout l'espace -->
+  <g>
+    <!-- Face supérieure - taille maximale -->
+    <path d="M 4,6 L 16,2 L 28,6 L 16,10 Z" 
+          fill="url(#topGrad)" 
+          stroke="#00ffff" 
+          stroke-width="1.5"
+          filter="url(#intenseGlow)"
+          opacity="0.95">
+      <!-- Pulsation rapide -->
+      <animate attributeName="opacity" values="0.95;1;0.8;1;0.95" dur="1.5s" repeatCount="indefinite"/>
+      <animate attributeName="stroke-width" values="1.5;2.5;1.5" dur="1.5s" repeatCount="indefinite"/>
+    </path>
+    
+    <!-- Face gauche -->
+    <path d="M 4,6 L 16,10 L 16,26 L 4,22 Z" 
+          fill="url(#leftGrad)" 
+          stroke="#0080ff" 
+          stroke-width="1.2"
+          opacity="0.9">
+      <animate attributeName="opacity" values="0.9;0.7;1;0.7;0.9" dur="1.5s" begin="0.5s" repeatCount="indefinite"/>
+      <animate attributeName="stroke-width" values="1.2;2;1.2" dur="1.5s" begin="0.5s" repeatCount="indefinite"/>
+    </path>
+    
+    <!-- Face droite -->
+    <path d="M 16,10 L 28,6 L 28,22 L 16,26 Z" 
+          fill="url(#rightGrad)" 
+          stroke="#004080" 
+          stroke-width="1.2"
+          opacity="0.85">
+      <animate attributeName="opacity" values="0.85;1;0.7;1;0.85" dur="1.5s" begin="1s" repeatCount="indefinite"/>
+      <animate attributeName="stroke-width" values="1.2;2;1.2" dur="1.5s" begin="1s" repeatCount="indefinite"/>
+    </path>
+    
+    <!-- Centre actif très visible -->
+    <circle cx="16" cy="10" r="3" fill="#00ffff" filter="url(#intenseGlow)">
+      <animate attributeName="r" values="3;4;3" dur="0.8s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.8;1;0.6;1;0.8" dur="0.8s" repeatCount="indefinite"/>
+      <animate attributeName="fill" values="#00ffff;#ffffff;#00ffff" dur="0.8s" repeatCount="indefinite"/>
+    </circle>
+    
+    <!-- Rayons lumineux qui traversent tout le cube -->
+    <g stroke="#00ffff" stroke-width="1" fill="none" opacity="0.9">
+      <line x1="16" y1="2" x2="16" y2="26">
+        <animate attributeName="opacity" values="0.9;0.3;0.9;1;0.9" dur="1s" repeatCount="indefinite"/>
+        <animate attributeName="stroke-width" values="1;2;1" dur="1s" repeatCount="indefinite"/>
+      </line>
+      <line x1="4" y1="14" x2="28" y2="14">
+        <animate attributeName="opacity" values="0.9;0.3;0.9;1;0.9" dur="1s" begin="0.5s" repeatCount="indefinite"/>
+        <animate attributeName="stroke-width" values="1;2;1" dur="1s" begin="0.5s" repeatCount="indefinite"/>
+      </line>
+    </g>
+    
+    <!-- Points de connexion aux extrémités -->
+    <circle cx="16" cy="2" r="1.5" fill="#00ffff">
+      <animate attributeName="r" values="1.5;2;1.5" dur="0.6s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.7;1;0.7" dur="0.6s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="16" cy="26" r="1.5" fill="#00ffff">
+      <animate attributeName="r" values="1.5;2;1.5" dur="0.6s" begin="0.15s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.7;1;0.7" dur="0.6s" begin="0.15s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="4" cy="14" r="1.5" fill="#00ffff">
+      <animate attributeName="r" values="1.5;2;1.5" dur="0.6s" begin="0.3s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.7;1;0.7" dur="0.6s" begin="0.3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="28" cy="14" r="1.5" fill="#00ffff">
+      <animate attributeName="r" values="1.5;2;1.5" dur="0.6s" begin="0.45s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.7;1;0.7" dur="0.6s" begin="0.45s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg>

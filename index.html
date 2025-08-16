@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BasedAI Node Installer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+</head>
+<body>
+    <!-- Unified Background with Three.js -->
+    <div id="unified-background"></div>
+    
+    <div class="menu-bar" id="menu-bar">
+        <div class="menu-container">
+            <button class="menu-button active" id="easy-node-button">
+                <i class="fas fa-cube"></i> Easy Node Validator
+            </button>
+            <button class="menu-button disabled" id="other-tools-button" disabled>
+                <i class="fas fa-tools"></i> Other Tools (Soon)
+            </button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <div class="server-status" id="server-status">
+                <i class="fas fa-circle"></i> <span id="server-status-text">System Ready</span>
+            </div>
+            <h1 class="title">BASEDAI NODE INSTALLER</h1>
+            <p class="subtitle">Deploy your BasedAI validator node with ease</p>
+            <div class="sync-indicator" id="sync-indicator">
+                <i class="fas fa-sync-alt"></i> <span id="sync-status">Ready to install</span>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <div class="section-title">
+                <h2>Node Configuration</h2>
+                <p>Fill in the fields below to generate your personalized installation command</p>
+            </div>
+            
+            <form id="install-form">
+                <div class="form-group">
+                    <label for="wallet-address">
+                        <i class="fas fa-wallet"></i> Wallet Address
+                    </label>
+                    <input type="text" id="wallet-address" placeholder="0x..." required>
+                    <div class="input-info">Your Ethereum address compatible with BasedAI</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="node-name">
+                        <i class="fas fa-tag"></i> Node Name
+                    </label>
+                    <input type="text" id="node-name" placeholder="my-based-node" required>
+                    <div class="input-info">A unique name to identify your node</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="stake-amount">
+                        <i class="fas fa-coins"></i> Stake Amount (BASED)
+                    </label>
+                    <input type="number" id="stake-amount" min="1000" value="1000" required>
+                    <div class="input-info">Minimum 1000 BASED tokens required</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="server-type">
+                        <i class="fas fa-server"></i> Server Type
+                    </label>
+                    <select id="server-type">
+                        <option value="vps">VPS (Virtual Private Server)</option>
+                        <option value="dedicated">Dedicated Server</option>
+                        <option value="local">Local Machine (Not recommended)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="operating-system">
+                        <i class="fab fa-linux"></i> Operating System
+                    </label>
+                    <select id="operating-system">
+                        <option value="ubuntu20">Ubuntu 20.04 LTS</option>
+                        <option value="ubuntu22">Ubuntu 22.04 LTS</option>
+                        <option value="debian11">Debian 11</option>
+                        <option value="debian12">Debian 12</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-magic"></i> Generate Command
+                </button>
+            </form>
+        </div>
+        
+        <div class="command-section hidden" id="command-section">
+            <div class="section-title">
+                <h2>Installation Command</h2>
+                <p>Run this command in your terminal to install your node</p>
+            </div>
+            
+            <div class="command-container">
+                <div class="command-header">
+                    <span>Your personalized command:</span>
+                    <button id="copy-btn" class="copy-btn">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+                <div class="command-box">
+                    <code id="install-command"></code>
+                </div>
+            </div>
+            
+            <div class="installation-steps">
+                <h3>Installation Steps:</h3>
+                <ol>
+                    <li>Connect to your server via SSH</li>
+                    <li>Ensure you have sudo permissions</li>
+                    <li>Paste and run the command above</li>
+                    <li>Follow the on-screen instructions</li>
+                    <li>Your node will be automatically configured and started</li>
+                </ol>
+            </div>
+            
+            <div class="requirements-info">
+                <h3>System Requirements:</h3>
+                <ul>
+                    <li><i class="fas fa-microchip"></i> CPU: 4 cores minimum</li>
+                    <li><i class="fas fa-memory"></i> RAM: 8GB minimum</li>
+                    <li><i class="fas fa-hdd"></i> Storage: 100GB SSD minimum</li>
+                    <li><i class="fas fa-network-wired"></i> Internet: Stable 24/7 connection</li>
+                </ul>
+            </div>
+            
+            <div class="support-info">
+                <h3>Need Help?</h3>
+                <p>Check our <a href="https://docs.basedlabs.net" target="_blank">documentation</a> or join our <a href="#" target="_blank">Discord server</a></p>
+            </div>
+        </div>
+        
+        <div class="features-section">
+            <div class="section-title">
+                <h2>Installer Features</h2>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3>Quick Installation</h3>
+                    <p>Deploy a validator node in just a few minutes</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Secure</h3>
+                    <p>Secure configuration with automatic key management</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-sync-alt"></i>
+                    </div>
+                    <h3>Automatic Updates</h3>
+                    <p>Your node stays updated with the latest versions</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Monitoring</h3>
+                    <p>Track your node's performance in real-time</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="testing-section">
+            <div class="section-title">
+                <h2>Testing Environments</h2>
+                <p>Free options to test your installation</p>
+            </div>
+            
+            <div class="testing-grid">
+                <div class="testing-option">
+                    <div class="testing-icon">
+                        <i class="fab fa-docker"></i>
+                    </div>
+                    <h3>Docker</h3>
+                    <p>Create a container to test the installation</p>
+                    <div class="testing-command">
+                        <code>docker run -it --rm ubuntu:22.04 bash</code>
+                    </div>
+                </div>
+                
+                <div class="testing-option">
+                    <div class="testing-icon">
+                        <i class="fab fa-aws"></i>
+                    </div>
+                    <h3>AWS Free Tier</h3>
+                    <p>12 months free with AWS EC2 instances</p>
+                    <div class="testing-command">
+                        <code>aws configure</code>
+                    </div>
+                </div>
+                
+                <div class="testing-option">
+                    <div class="testing-icon">
+                        <i class="fab fa-google"></i>
+                    </div>
+                    <h3>Google Cloud</h3>
+                    <p>$300 credit for new users</p>
+                    <div class="testing-command">
+                        <code>gcloud auth login</code>
+                    </div>
+                </div>
+                
+                <div class="testing-option">
+                    <div class="testing-icon">
+                        <i class="fas fa-virtual-machine"></i>
+                    </div>
+                    <h3>Oracle Cloud</h3>
+                    <p>Always free tier available</p>
+                    <div class="testing-command">
+                        <code>oci session authenticate</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
