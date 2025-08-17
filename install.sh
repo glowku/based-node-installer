@@ -2,18 +2,22 @@
 # Based Node Installer - Version Professionnelle
 # Ce script installe et configure un nœud validateur BasedAI
 # Compatible avec Linux, WSL, et différents systèmes d'exploitation
+
 # Correction du problème de fin de ligne
 sed -i 's/\r$//' "$0"
+
 # Vérification des arguments
 if [ "$#" -ne 5 ]; then
     echo "Usage: $0 <WALLET_ADDRESS> <NODE_NAME> <STAKE_AMOUNT> <SERVER_TYPE> <OS>"
     exit 1
 fi
+
 WALLET_ADDRESS=$1
 NODE_NAME=$2
 STAKE_AMOUNT=$3
 SERVER_TYPE=$4
 OS=$5
+
 # Affichage du logo Based Node
 echo -e "\e[36m"
 echo "░▒▓███████▓▒░ ░▒▓██████▓▒░ ░▒▓███████▓▒░▒▓████████▓▒░▒▓███████▓▒░       ░▒▓███████▓▒░ ░▒▓██████▓▒░░▒▓███████▓▒░░▒▓████████▓▒░"
@@ -26,6 +30,7 @@ echo "░▒▓███████▓▒░░▒▓█▓▒░░▒▓█�
 echo -e "\e[0m"
 echo "                                                                      \e[36mNODE PROFESSIONAL INSTALLER\e[0m"
 echo ""
+
 # Détection du système d'exploitation
 detect_os() {
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
@@ -46,8 +51,10 @@ detect_os() {
         echo "unknown"
     fi
 }
+
 OS_TYPE=$(detect_os)
 echo "🖥️  Système d'exploitation détecté: $OS_TYPE"
+
 # Obtention d'informations détaillées sur le système d'exploitation
 get_detailed_os() {
     case "$OS_TYPE" in
@@ -76,8 +83,10 @@ get_detailed_os() {
             ;;
     esac
 }
+
 OS_VERSION=$(get_detailed_os)
 echo "📋 Version du système d'exploitation: $OS_VERSION"
+
 # Vérification des privilèges root ou sudo
 check_privileges() {
     if [[ $EUID -eq 0 ]]; then
@@ -96,7 +105,9 @@ check_privileges() {
         exit 1
     fi
 }
+
 check_privileges
+
 # Vérification et installation de Node.js
 install_nodejs() {
     echo "📦 Vérification de Node.js..."
@@ -139,7 +150,9 @@ install_nodejs() {
         exit 1
     fi
 }
+
 install_nodejs
+
 # Mise à jour du système
 update_system() {
     echo "🔄 Mise à jour du système..."
@@ -168,7 +181,9 @@ update_system() {
             ;;
     esac
 }
+
 update_system
+
 # Installation des dépendances
 install_dependencies() {
     echo "📦 Installation des dépendances..."
@@ -189,7 +204,9 @@ install_dependencies() {
             ;;
     esac
 }
+
 install_dependencies
+
 # Installation de Docker
 install_docker() {
     echo "🐳 Installation de Docker..."
@@ -227,7 +244,9 @@ install_docker() {
             ;;
     esac
 }
+
 install_docker
+
 # Création de l'utilisateur dédié
 create_user() {
     echo "👤 Création de l'utilisateur 'basedai'..."
@@ -258,7 +277,9 @@ create_user() {
             ;;
     esac
 }
+
 create_user
+
 # Création des répertoires
 create_directories() {
     echo "📁 Création des répertoires..."
@@ -280,7 +301,9 @@ create_directories() {
             ;;
     esac
 }
+
 create_directories
+
 # Téléchargement du binaire BasedAI avec plusieurs sources et solution de secours
 download_binary() {
     echo "⬇️  Téléchargement du binaire BasedAI..."
@@ -291,24 +314,34 @@ download_binary() {
             
             # Détermination du bon binaire en fonction de l'OS
             if [[ "$OS_TYPE" == "macos" ]]; then
-                BINARY_URLS=(
+                BINARY_URLS_OFFICIAL=(
                     "https://github.com/based-ai/based/releases/download/v1.0.0/based-darwin-amd64"
                     "https://github.com/based-ai/based/releases/download/v1.0.0/based-darwin-arm64"
                 )
+                BINARY_URLS_FORK=(
+                    "https://github.com/getbasedai/basednode/releases/download/v1.0.0/based-darwin-amd64"
+                    "https://github.com/getbasedai/basednode/releases/download/v1.0.0/based-darwin-arm64"
+                )
             else
-                BINARY_URLS=(
+                BINARY_URLS_OFFICIAL=(
                     "https://github.com/based-ai/based/releases/download/v1.0.0/based-linux-amd64"
                     "https://github.com/based-ai/based/releases/download/v1.0.0/based-linux-arm64"
                     "https://github.com/based-ai/based/releases/download/v1.0.0/based-linux-386"
                 )
+                BINARY_URLS_FORK=(
+                    "https://github.com/getbasedai/basednode/releases/download/v1.0.0/based-linux-amd64"
+                    "https://github.com/getbasedai/basednode/releases/download/v1.0.0/based-linux-arm64"
+                    "https://github.com/getbasedai/basednode/releases/download/v1.0.0/based-linux-386"
+                )
             fi
             
-            # Essayer chaque URL jusqu'à ce qu'une fonctionne
+            # Essayer d'abord le dépôt officiel
             BINARY_DOWNLOADED=false
-            for BINARY_URL in "${BINARY_URLS[@]}"; do
+            echo "Tentative de téléchargement depuis le dépôt officiel..."
+            for BINARY_URL in "${BINARY_URLS_OFFICIAL[@]}"; do
                 echo "Tentative de téléchargement depuis: $BINARY_URL"
                 if sudo -u basedai wget -O based "$BINARY_URL"; then
-                    echo "✅ Téléchargement réussi!"
+                    echo "✅ Téléchargement réussi depuis le dépôt officiel!"
                     BINARY_DOWNLOADED=true
                     break
                 else
@@ -316,7 +349,22 @@ download_binary() {
                 fi
             done
             
-            # Si le téléchargement échoue, créer un binaire fonctionnel
+            # Si le dépôt officiel échoue, essayer le fork
+            if [ "$BINARY_DOWNLOADED" = false ]; then
+                echo "⚠️  Échec du téléchargement depuis le dépôt officiel. Tentative avec le fork..."
+                for BINARY_URL in "${BINARY_URLS_FORK[@]}"; do
+                    echo "Tentative de téléchargement depuis le fork: $BINARY_URL"
+                    if sudo -u basedai wget -O based "$BINARY_URL"; then
+                        echo "✅ Téléchargement réussi depuis le fork!"
+                        BINARY_DOWNLOADED=true
+                        break
+                    else
+                        echo "❌ Échec du téléchargement depuis cette URL du fork."
+                    fi
+                done
+            fi
+            
+            # Si toujours pas téléchargé, créer un binaire fonctionnel
             if [ "$BINARY_DOWNLOADED" = false ]; then
                 echo "⚠️  Impossible de télécharger le binaire BasedAI depuis toutes les sources disponibles."
                 echo "Création d'un binaire de secours pour que le nœud fonctionne..."
@@ -443,7 +491,9 @@ BINARYEOF
             ;;
     esac
 }
+
 download_binary
+
 # Installation de la bibliothèque de surveillance
 install_monitoring_library() {
     echo "📊 Installation de la bibliothèque de surveillance..."
@@ -481,9 +531,11 @@ const path = require('path');
 const { execSync } = require('child_process');
 const app = express();
 const port = 8080;
+
 // Middleware
 app.use(express.json());
 app.use(express.static('public'));
+
 // Lire la configuration
 let config = {};
 try {
@@ -492,6 +544,7 @@ try {
 } catch (err) {
   console.error('Erreur de lecture de la configuration:', err);
 }
+
 // Route principale
 app.get('/', (req, res) => {
   // Récupérer les derniers logs du nœud
@@ -1009,6 +1062,7 @@ app.get('/', (req, res) => {
   res.end('<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Page non trouvée</title></head><body><h1>Page non trouvée</h1></body></html>');
 }
 });
+
 // Démarrer le serveur
 app.listen(port, () => {
   console.log(`Serveur de surveillance démarré sur http://localhost:${port}`);
@@ -1069,6 +1123,7 @@ NODE_DIR="/opt/basedai"
 MONITOR_DIR="$NODE_DIR/monitoring/basedai-monitor"
 LOG_FILE="$NODE_DIR/logs/monitor.log"
 PID_FILE="$NODE_DIR/monitoring/monitor.pid"
+
 # Vérification si la surveillance est déjà en cours d'exécution
 if [ -f "$PID_FILE" ]; then
     PID=$(cat "$PID_FILE")
@@ -1079,11 +1134,14 @@ if [ -f "$PID_FILE" ]; then
         rm "$PID_FILE"
     fi
 fi
+
 echo "Démarrage de la surveillance du nœud BasedAI..." >> "$LOG_FILE"
 cd "$MONITOR_DIR"
+
 # Démarrage du service de surveillance
 nohup npm start >> "$LOG_FILE" 2>&1 &
 echo $! > "$PID_FILE"
+
 echo "Surveillance démarrée avec PID: $(cat $PID_FILE)" >> "$LOG_FILE"
 echo "Service de surveillance démarré avec succès"
 EOF
@@ -1101,7 +1159,9 @@ EOF
             ;;
     esac
 }
+
 install_monitoring_library
+
 # Génération du fichier de configuration
 generate_config() {
     echo "⚙️  Génération de la configuration..."
@@ -1156,7 +1216,9 @@ EOF
             ;;
     esac
 }
+
 generate_config
+
 # Configuration du pare-feu
 configure_firewall() {
     echo "🔥 Configuration du pare-feu..."
@@ -1197,7 +1259,9 @@ configure_firewall() {
             ;;
     esac
 }
+
 configure_firewall
+
 # Création du service systemd
 create_service() {
     echo "📝 Création du service systemd..."
@@ -1302,7 +1366,9 @@ EOF
             ;;
     esac
 }
+
 create_service
+
 # Démarrage des services
 start_service() {
     echo "🚀 Démarrage des services..."
@@ -1329,7 +1395,9 @@ start_service() {
             ;;
     esac
 }
+
 start_service
+
 # Création d'un script de vérification
 create_check_script() {
     echo "🔍 Création du script de vérification..."
@@ -1340,11 +1408,13 @@ echo "=========================================="
 echo "Vérification complète du nœud BasedAI"
 echo "=========================================="
 echo ""
+
 # Vérifier le statut des services
 echo "1. Statut des services :"
 echo "   Service basedai : $(systemctl is-active basedai)"
 echo "   Service basedai-monitor : $(systemctl is-active basedai-monitor)"
 echo ""
+
 # Vérifier les ports en écoute
 echo "2. Ports en écoute :"
 if ss -tlnp | grep -q ":30333 "; then
@@ -1363,6 +1433,7 @@ else
     echo "   ❌ Port 8080 (Surveillance) : Non écouté"
 fi
 echo ""
+
 # Vérifier l'interface web
 echo "3. Interface web :"
 if curl -s -o /dev/null -w "%{http_code}" http://localhost:8080 | grep -q "200"; then
@@ -1372,6 +1443,7 @@ else
     echo "   ❌ Interface web inaccessible"
 fi
 echo ""
+
 # Vérifier l'API
 echo "4. API des métriques :"
 if curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/metrics | grep -q "200"; then
@@ -1384,6 +1456,7 @@ else
     echo "   ❌ API inaccessible"
 fi
 echo ""
+
 # Vérifier le RPC
 echo "5. Endpoint RPC :"
 if curl -s -o /dev/null -w "%{http_code}" http://localhost:9933 | grep -q "200"; then
@@ -1398,12 +1471,14 @@ else
     echo "   ❌ RPC inaccessible"
 fi
 echo ""
+
 # Vérifier les performances système
 echo "6. Performances système :"
 echo "   CPU : $(top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print 100 - $1}')% utilisé"
 echo "   Mémoire : $(free -m | grep Mem | awk '{printf "%.1f%%", $3/$2*100}') utilisée"
 echo "   Disque : $(df -h / | tail -1 | awk '{print $5}') utilisé"
 echo ""
+
 # Vérifier que le binaire est bien présent et exécutable
 echo "7. Vérification du binaire :"
 if [ -f "/opt/basedai/based" ]; then
@@ -1420,10 +1495,12 @@ else
     echo "   Et placez-le dans /opt/basedai/based"
 fi
 echo ""
+
 # Derniers logs du nœud
 echo "8. Dernières activités du nœud :"
 journalctl -u basedai -n 5 --no-pager | grep -E "(Validation|Synchronisation|Récompenses|Bootnodes)"
 echo ""
+
 echo "=========================================="
 echo "Vérification terminée !"
 echo "=========================================="
@@ -1433,7 +1510,9 @@ EOF
     
     echo "✅ Script de vérification créé"
 }
+
 create_check_script
+
 # Création d'un script de gestion simple
 create_management_script() {
     echo "🛠️  Création du script de gestion..."
@@ -1509,7 +1588,9 @@ EOF
     echo "   Utilisez : /opt/basedai/manage.sh [start|stop|restart|status|logs|web|check]"
     echo "   Ou après reconnexion : basedai [start|stop|restart|status|logs|web|check]"
 }
+
 create_management_script
+
 # Affichage des informations de completion
 echo ""
 echo -e "\e[36m✅ Installation terminée avec succès!\e[0m"
@@ -1523,6 +1604,7 @@ echo "   Système d'exploitation: $OS"
 echo "   Système d'exploitation détecté: $OS_TYPE"
 echo "   Version du système d'exploitation: $OS_VERSION"
 echo ""
+
 # TUTORIEL COMPLET POUR GÉRER LE NŒUD
 echo -e "\e[33m"
 echo "╔══════════════════════════════════════════════════════════════╗"
