@@ -1,17 +1,13 @@
 #!/bin/bash
-
 # Based Node Monitor
 # This script monitors your BasedAI validator node
-
 # Fix line ending issues
 sed -i 's/\r$//' "$0"
-
 # Check if node is installed
 if [ ! -d "/opt/basedai" ]; then
     echo "❌ BasedAI node is not installed. Please install it first."
     exit 1
 fi
-
 # Function to display node status
 show_status() {
     echo "🔍 Checking node status..."
@@ -39,7 +35,6 @@ show_status() {
         echo "❌ Port 30333 is not open"
     fi
 }
-
 # Function to show node logs
 show_logs() {
     echo "📄 Showing node logs..."
@@ -52,7 +47,6 @@ show_logs() {
         echo "❌ No logs found"
     fi
 }
-
 # Function to show node configuration
 show_config() {
     echo "⚙️  Node configuration:"
@@ -62,7 +56,6 @@ show_config() {
         echo "❌ Configuration file not found"
     fi
 }
-
 # Function to restart the node
 restart_node() {
     echo "🔄 Restarting node..."
@@ -78,7 +71,6 @@ restart_node() {
         echo "❌ Could not restart node automatically"
     fi
 }
-
 # Function to stop the node
 stop_node() {
     echo "🛑 Stopping node..."
@@ -93,7 +85,6 @@ stop_node() {
         echo "❌ Could not stop node automatically"
     fi
 }
-
 # Function to start the node
 start_node() {
     echo "🚀 Starting node..."
@@ -108,7 +99,6 @@ start_node() {
         echo "❌ Could not start node automatically"
     fi
 }
-
 # Main menu
 case "$1" in
     "status")

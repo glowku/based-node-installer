@@ -24,8 +24,8 @@ echo "░▒▓███████▓▒░ ░▒▓██████▓▒�
 echo "░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░        "
 echo "░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░        "
 echo "░▒▓███████▓▒░░▒▓████████▓▒░░▒▓██████▓▒░░▒▓██████▓▒░ ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓██████▓▒░   "
-echo "░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░        "
-echo "░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░        "
+echo "░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░        "
+echo "░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░        "
 echo "░▒▓███████▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓███████▓▒░░▒▓████████▓▒░▒▓███████▓▒░       ░▒▓█▓▒░░▒▓█▓▒░░▒▓██████▓▒░░▒▓███████▓▒░░▒▓████████▓▒░"
 echo -e "\e[0m"
 echo "                                                                      \e[36mNODE PROFESSIONAL INSTALLER\e[0m"
@@ -326,6 +326,140 @@ install_rust() {
     fi
 }
 
+# Téléchargement ou compilation du binaire BasedAI
+download_binary() {
+    echo "⬇️  Préparation du binaire BasedAI..."
+    
+    case "$OS_TYPE" in
+        "ubuntu"|"debian"|"wsl"|"macos")
+            cd /opt/basedai
+            
+            # Détermination du bon binaire en fonction de l'OS
+            if [[ "$OS_TYPE" == "macos" ]]; then
+                BINARY_URLS_OFFICIAL=(
+                    "https://github.com/based-ai/based/releases/download/v1.0.0/based-darwin-amd64"
+                    "https://github.com/based-ai/based/releases/download/v1.0.0/based-darwin-arm64"
+                )
+                BINARY_URLS_FORK=(
+                    "https://github.com/getbasedai/basednode/releases/download/v1.0.0/based-darwin-amd64"
+                    "https://github.com/getbasedai/basednode/releases/download/v1.0.0/based-darwin-arm64"
+                )
+                BINARY_NAME="based-darwin"
+            else
+                BINARY_URLS_OFFICIAL=(
+                    "https://github.com/based-ai/based/releases/download/v1.0.0/based-linux-amd64"
+                    "https://github.com/based-ai/based/releases/download/v1.0.0/based-linux-arm64"
+                    "https://github.com/based-ai/based/releases/download/v1.0.0/based-linux-386"
+                )
+                BINARY_URLS_FORK=(
+                    "https://github.com/getbasedai/basednode/releases/download/v1.0.0/based-linux-amd64"
+                    "https://github.com/getbasedai/basednode/releases/download/v1.0.0/based-linux-arm64"
+                    "https://github.com/getbasedai/basednode/releases/download/v1.0.0/based-linux-386"
+                )
+                BINARY_NAME="based-linux"
+            fi
+            
+            # Essayer d'abord le dépôt officiel
+            BINARY_DOWNLOADED=false
+            echo "Tentative de téléchargement depuis le dépôt officiel..."
+            for BINARY_URL in "${BINARY_URLS_OFFICIAL[@]}"; do
+                echo "Tentative de téléchargement depuis: $BINARY_URL"
+                if sudo -u basedai wget -O based "$BINARY_URL" --timeout=30 --tries=3; then
+                    echo "✅ Téléchargement réussi depuis le dépôt officiel!"
+                    BINARY_DOWNLOADED=true
+                    break
+                else
+                    echo "❌ Échec du téléchargement depuis cette URL."
+                fi
+            done
+            
+            # Si le dépôt officiel échoue, essayer le fork
+            if [ "$BINARY_DOWNLOADED" = false ]; then
+                echo "⚠️  Échec du téléchargement depuis le dépôt officiel. Tentative avec le fork..."
+                for BINARY_URL in "${BINARY_URLS_FORK[@]}"; do
+                    echo "Tentative de téléchargement depuis le fork: $BINARY_URL"
+                    if sudo -u basedai wget -O based "$BINARY_URL" --timeout=30 --tries=3; then
+                        echo "✅ Téléchargement réussi depuis le fork!"
+                        BINARY_DOWNLOADED=true
+                        break
+                    else
+                        echo "❌ Échec du téléchargement depuis cette URL du fork."
+                    fi
+                done
+            fi
+            
+            # Si toujours pas téléchargé, essayer de compiler depuis le source
+            if [ "$BINARY_DOWNLOADED" = false ]; then
+                echo "⚠️  Impossible de télécharger le binaire. Tentative de compilation depuis le code source..."
+                
+                # Installer Rust si nécessaire
+                if ! install_rust; then
+                    echo "❌ Impossible d'installer Rust. Création d'un binaire de secours..."
+                    create_fallback_binary
+                    return 0
+                fi
+                
+                # Créer un répertoire temporaire pour la compilation
+                BUILD_DIR="/tmp/basednode-build"
+                sudo -u basedai mkdir -p "$BUILD_DIR"
+                cd "$BUILD_DIR"
+                
+                # Cloner le dépôt
+                echo "Clonage du dépôt getbasedai/basednode..."
+                if sudo -u basedai git clone https://github.com/getbasedai/basednode.git .; then
+                    echo "✅ Dépôt cloné avec succès"
+                    
+                    # Compiler le binaire
+                    echo "Compilation du binaire (cela peut prendre plusieurs minutes)..."
+                    if sudo -u basedai cargo build --release; then
+                        echo "✅ Compilation réussie!"
+                        
+                        # Copier le binaire compilé
+                        if [ -f "target/release/basednode" ]; then
+                            sudo -u basedai cp target/release/basednode /opt/basedai/based
+                            echo "✅ Binaire copié avec succès"
+                            BINARY_DOWNLOADED=true
+                        else
+                            echo "❌ Binaire compilé non trouvé"
+                        fi
+                    else
+                        echo "❌ Échec de la compilation"
+                    fi
+                else
+                    echo "❌ Échec du clonage du dépôt"
+                fi
+                
+                # Nettoyer le répertoire temporaire
+                cd /opt/basedai
+                sudo rm -rf "$BUILD_DIR"
+            fi
+            
+            # Si toujours pas de binaire, créer un binaire de secours
+            if [ "$BINARY_DOWNLOADED" = false ]; then
+                echo "⚠️  Toutes les méthodes ont échoué. Création d'un binaire de secours..."
+                create_fallback_binary
+            fi
+            
+            # Vérifier que le binaire est exécutable
+            if [ -f "/opt/basedai/based" ]; then
+                sudo chmod +x /opt/basedai/based
+                sudo chown basedai:basedai /opt/basedai/based
+                echo "✅ Binaire BasedAI prêt à l'emploi"
+            else
+                echo "❌ Impossible de créer ou trouver le binaire"
+                exit 1
+            fi
+            ;;
+        "windows")
+            echo "⚠️  Sur Windows, veuillez télécharger le binaire manuellement."
+            ;;
+        *)
+            echo "❌ Système d'exploitation non pris en charge: $OS_TYPE"
+            exit 1
+            ;;
+    esac
+}
+
 # Création d'un binaire de secours
 create_fallback_binary() {
     echo "🔧 Création d'un binaire de secours..."
@@ -426,173 +560,6 @@ done
 BINARYEOF
     
     echo "✅ Binaire de secours créé"
-}
-
-# Téléchargement ou compilation du binaire BasedAI
-download_binary() {
-    echo "⬇️  Préparation du binaire BasedAI..."
-    
-    case "$OS_TYPE" in
-        "ubuntu"|"debian"|"wsl"|"macos")
-            cd /opt/basedai
-            
-            # Détermination du bon binaire en fonction de l'OS
-            if [[ "$OS_TYPE" == "macos" ]]; then
-                BINARY_URLS_FORK=(
-                    "https://github.com/getbasedai/basednode/releases/download/v1.0.0/based-darwin-amd64"
-                    "https://github.com/getbasedai/basednode/releases/download/v1.0.0/based-darwin-arm64"
-                )
-                BINARY_URLS_OFFICIAL=(
-                    "https://github.com/based-ai/based/releases/download/v1.0.0/based-darwin-amd64"
-                    "https://github.com/based-ai/based/releases/download/v1.0.0/based-darwin-arm64"
-                )
-                BINARY_NAME="based-darwin"
-            else
-                BINARY_URLS_FORK=(
-                    "https://github.com/getbasedai/basednode/releases/download/v1.0.0/based-linux-amd64"
-                    "https://github.com/getbasedai/basednode/releases/download/v1.0.0/based-linux-arm64"
-                    "https://github.com/getbasedai/basednode/releases/download/v1.0.0/based-linux-386"
-                )
-                BINARY_URLS_OFFICIAL=(
-                    "https://github.com/based-ai/based/releases/download/v1.0.0/based-linux-amd64"
-                    "https://github.com/based-ai/based/releases/download/v1.0.0/based-linux-arm64"
-                    "https://github.com/based-ai/based/releases/download/v1.0.0/based-linux-386"
-                )
-                BINARY_NAME="based-linux"
-            fi
-            
-            # Initialisation du flag de téléchargement
-            BINARY_DOWNLOADED=false
-            
-            # PRIORITÉ AU FORK getbasedai/basednode
-            echo "🔄 Tentative de téléchargement depuis le fork getbasedai/basednode (priorité)..."
-            for BINARY_URL in "${BINARY_URLS_FORK[@]}"; do
-                echo "   Essai: $BINARY_URL"
-                if sudo -u basedai wget -O based "$BINARY_URL" --timeout=30 --tries=3; then
-                    echo "✅ Téléchargement réussi depuis le fork!"
-                    BINARY_DOWNLOADED=true
-                    break
-                else
-                    echo "❌ Échec du téléchargement depuis cette URL du fork."
-                fi
-            done
-            
-            # Si le fork échoue, essayer le dépôt officiel
-            if [ "$BINARY_DOWNLOADED" = false ]; then
-                echo "🔄 Échec du fork. Tentative avec le dépôt officiel based-ai/based..."
-                for BINARY_URL in "${BINARY_URLS_OFFICIAL[@]}"; do
-                    echo "   Essai: $BINARY_URL"
-                    if sudo -u basedai wget -O based "$BINARY_URL" --timeout=30 --tries=3; then
-                        echo "✅ Téléchargement réussi depuis le dépôt officiel!"
-                        BINARY_DOWNLOADED=true
-                        break
-                    else
-                        echo "❌ Échec du téléchargement depuis cette URL du dépôt officiel."
-                    fi
-                done
-            fi
-            
-            # Si toujours pas téléchargé, essayer de compiler depuis le source
-            if [ "$BINARY_DOWNLOADED" = false ]; then
-                echo "🔄 Échec du téléchargement depuis toutes les sources. Tentative de compilation depuis le code source..."
-                
-                # Installer Rust si nécessaire
-                if ! install_rust; then
-                    echo "❌ Impossible d'installer Rust. Création d'un binaire de secours..."
-                    create_fallback_binary
-                    return 0
-                fi
-                
-                # Créer un répertoire temporaire pour la compilation
-                BUILD_DIR="/tmp/basednode-build"
-                sudo -u basedai mkdir -p "$BUILD_DIR"
-                cd "$BUILD_DIR"
-                
-                # Cloner le dépôt fork
-                echo "Clonage du dépôt getbasedai/basednode..."
-                if sudo -u basedai git clone https://github.com/getbasedai/basednode.git .; then
-                    echo "✅ Dépôt cloné avec succès"
-                    
-                    # Appliquer les corrections pour les erreurs de compilation courantes
-                    echo "Application des corrections pour les erreurs de compilation..."
-                    
-                    # Correction 1: Créer le fichier manquant
-                    sudo -u basedai mkdir -p runtime/wasm
-                    sudo -u basedai touch runtime/wasm/missing_file.rs
-                    sudo -u basedai tee runtime/wasm/missing_file.rs > /dev/null <<'EOF'
-// Fichier créé pour corriger une erreur de compilation
-// Ce fichier est nécessaire pour la compilation du projet BasedAI
-pub fn missing_function() -> u32 {
-    42
-}
-EOF
-                    
-                    # Correction 2: Corriger le mapping d'enum
-                    sudo -u basedai tee fix_enum_mapping.rs > /dev/null <<'EOF'
-// Correction pour le mapping d'enum
-pub fn fix_enum_mapping(value: u32) -> Result<String, String> {
-    match value {
-        0 => Ok("Value0".to_string()),
-        1 => Ok("Value1".to_string()),
-        2 => Ok("Value2".to_string()),
-        _ => Err("Unknown value".to_string()),
-    }
-}
-EOF
-                    
-                    # Rechercher et remplacer le mapping d'enum problématique
-                    echo "Recherche et correction des mappings d'enum problématiques..."
-                    sudo -u basedai find . -name "*.rs" -type f -exec sed -i 's/\.into()/\n{\n    use crate::fix_enum_mapping;\n    fix_enum_mapping(self).unwrap_or_else(|_| \"Default\".to_string())\n}/g' {} \;
-                    
-                    # Compiler le binaire
-                    echo "Compilation du binaire (cela peut prendre plusieurs minutes)..."
-                    if sudo -u basedai cargo build --release; then
-                        echo "✅ Compilation réussie!"
-                        
-                        # Copier le binaire compilé
-                        if [ -f "target/release/basednode" ]; then
-                            sudo -u basedai cp target/release/basednode /opt/basedai/based
-                            echo "✅ Binaire copié avec succès"
-                            BINARY_DOWNLOADED=true
-                        else
-                            echo "❌ Binaire compilé non trouvé"
-                        fi
-                    else
-                        echo "❌ Échec de la compilation"
-                    fi
-                else
-                    echo "❌ Échec du clonage du dépôt"
-                fi
-                
-                # Nettoyer le répertoire temporaire
-                cd /opt/basedai
-                sudo rm -rf "$BUILD_DIR"
-            fi
-            
-            # Si toujours pas de binaire, créer un binaire de secours
-            if [ "$BINARY_DOWNLOADED" = false ]; then
-                echo "⚠️  Toutes les méthodes ont échoué. Création d'un binaire de secours..."
-                create_fallback_binary
-            fi
-            
-            # Vérifier que le binaire est exécutable
-            if [ -f "/opt/basedai/based" ]; then
-                sudo chmod +x /opt/basedai/based
-                sudo chown basedai:basedai /opt/basedai/based
-                echo "✅ Binaire BasedAI prêt à l'emploi"
-            else
-                echo "❌ Impossible de créer ou trouver le binaire"
-                exit 1
-            fi
-            ;;
-        "windows")
-            echo "⚠️  Sur Windows, veuillez télécharger le binaire manuellement."
-            ;;
-        *)
-            echo "❌ Système d'exploitation non pris en charge: $OS_TYPE"
-            exit 1
-            ;;
-    esac
 }
 
 download_binary
@@ -1781,11 +1748,6 @@ echo "║     - Ou compilez depuis le source:                          ║"
 echo "║       git clone https://github.com/getbasedai/basednode.git   ║"
 echo "║       cd basednode && cargo build --release                  ║"
 echo "║       cp target/release/basednode /opt/basedai/based        ║"
-echo "║                                                              ║"
-echo "║  4. Si vous avez des erreurs de compilation:                ║"
-echo "║     - Le script a appliqué des corrections automatiques         ║"
-echo "║     - Si des erreurs persistent, vérifiez les logs:           ║"
-echo "║       journalctl -u basedai -f                                ║"
 echo "║                                                              ║"
 echo "╚══════════════════════════════════════════════════════════════╝"
 echo -e "\e[0m"

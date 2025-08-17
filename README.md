@@ -1,50 +1,3 @@
-//  8""""                                      
-//  8     eeeee eeeee e    e                   
-//  8eeee 8   8 8   " 8    8                   
-//  88    8eee8 8eeee 8eeee8                   
-//  88    88  8    88   88                     
-//  88eee 88  8 8ee88   88                     
-//                                             
-//  8""""8                                     
-//  8    8   eeeee eeeee eeee eeeee            
-//  8eeee8ee 8   8 8   " 8    8   8            
-//  88     8 8eee8 8eeee 8eee 8e  8            
-//  88     8 88  8    88 88   88  8            
-//  88eeeee8 88  8 8ee88 88ee 88ee8            
-//                                             
-//                                             
-//                                             
-//                                             
-//                                             
-//                                             
-//  88 88 88                                   
-//                                             
-//                                             
-//                                             
-//                                             
-//                                             
-//                                             
-//                                             
-//                                             
-//  8""8""8                                    
-//  8  8  8 eeeee eeeee e eeeee eeeee eeeee    
-//  8e 8  8 8  88 8   8 8   8   8  88 8   8    
-//  88 8  8 8   8 8e  8 8e  8e  8   8 8eee8e   
-//  88 8  8 8   8 88  8 88  88  8   8 88   8   
-//  88 8  8 8eee8 88  8 88  88  8eee8 88   8   
-//                                             
-//                                             
-//  eeeee eeeee eeeee eeee eeeee               
-//  8   8 8  88 8   8 8    8   "               
-//  8e  8 8   8 8e  8 8eee 8eeee               
-//  88  8 8   8 88  8 88      88               
-//  88  8 8eee8 88ee8 88ee 8ee88               
-//                                                                                                                                                                                           
-(beta)
-https://based-node-installer.onrender.com/
-
-
-
 # BasedAI Node Installer & Monitor
 
 A comprehensive solution for installing and monitoring BasedAI validator nodes with animated Three.js background
@@ -66,9 +19,4 @@ sed -i 's/\r$//' install.sh
 chmod +x install.sh
 
 # Run the script with your parameters
-
 ./install.sh "YOUR_WALLET_ADDRESS" "YOUR_NODE_NAME" "STAKE_AMOUNT" "SERVER_TYPE" "OS"
-
-
-
-

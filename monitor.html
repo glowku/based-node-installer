@@ -5,55 +5,579 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BasedAI Node Monitor</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <style>
-        .monitor-container {
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&display=swap');
+        :root {
+            --primary-color: #00ffff;
+            --secondary-color: #0080ff;
+            --bg-color: #0a0a0a;
+            --card-bg: rgba(10, 10, 10, 0.7);
+            --text-color: #ffffff;
+            --success-color: #00ff00;
+            --warning-color: #ffff00;
+            --danger-color: #ff0000;
+            --border-color: rgba(0, 255, 255, 0.3);
+            --select-bg: #1a1a1a;
+            --select-hover: #2a2a2a;
+            --select-text: #ffffff;
+            --select-option-bg: #1a1a1a;
+            --select-option-hover: #333333;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Orbitron', monospace;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+            min-height: 100vh;
+            padding-top: 600px; /* Extra padding to prevent cube from overlapping title */
+        }
+        /* Three.js Background Container */
+        #three-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, #051520 0%, #061825 50%, #051520 100%); /* Cyan plus foncé */
+        }
+        .menu-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            padding: 15px 20px;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .menu-container {
+            display: flex;
+            gap: 15px;
+        }
+        .menu-button {
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 24px; /* Augmenté de 20% */
+            color: var(--text-color);
+            font-family: 'Orbitron', monospace;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1rem; /* Augmenté la taille de la police */
+        }
+        .menu-button:hover {
+            background: rgba(0, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.2);
+        }
+        .menu-button.active {
+            background: rgba(0, 255, 255, 0.3);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        }
+        .menu-button.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .menu-button.disabled:hover {
+            background: rgba(0, 255, 255, 0.1);
+            transform: none;
+            box-shadow: none;
+        }
+        .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 100px 20px 20px;
+            position: relative;
+            z-index: 1;
         }
-        
-        .monitor-header {
+        .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+            animation: fadeInDown 1s ease-out;
         }
-        
-        .monitor-title {
-            font-size: 2.5rem;
+        .server-status {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            color: var(--secondary-color);
+        }
+        .server-status.online {
+            color: var(--success-color);
+        }
+        .server-status.offline {
+            color: var(--danger-color);
+        }
+        .server-status.checking {
             color: var(--primary-color);
+        }
+        .title {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 3px;
             margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--secondary-color);
+            letter-spacing: 1px;
+        }
+        .sync-indicator {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+        }
+        .sync-indicator i {
+            animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .section-title {
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .section-title h2 {
+            font-size: 1.8rem;
+            color: var(--primary-color);
             text-transform: uppercase;
             letter-spacing: 2px;
+            margin-bottom: 10px;
         }
-        
-        .monitor-subtitle {
+        .section-title p {
             color: var(--secondary-color);
-            font-size: 1.2rem;
+            font-size: 1rem;
         }
-        
-        .node-status-form {
+        /* Monitor Page Styles */
+        .monitor-section {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 15px;
             padding: 30px;
-            margin-bottom: 30px;
             backdrop-filter: blur(10px);
             box-shadow: 0 8px 32px rgba(0, 255, 255, 0.1);
+            margin-bottom: 40px;
+            animation: fadeIn 1s ease-out 0.3s both;
         }
-        
-        .form-group {
+        .monitor-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .search-container {
+            display: flex;
+            flex: 1;
+            min-width: 300px;
+        }
+        .search-container input {
+            flex: 1;
+            padding: 12px 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 8px 0 0 8px;
+            color: var(--text-color);
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        .search-container input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+        .search-container button {
+            background: rgba(0, 255, 255, 0.2);
+            border: 1px solid var(--border-color);
+            border-left: none;
+            border-radius: 0 8px 8px 0;
+            padding: 0 15px;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .search-container button:hover {
+            background: rgba(0, 255, 255, 0.3);
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .action-btn {
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 15px;
+            color: var(--text-color);
+            font-family: 'Orbitron', monospace;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .action-btn:hover {
+            background: rgba(0, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.2);
+        }
+        .action-btn.primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            color: var(--bg-color);
+        }
+        .action-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 255, 255, 0.3);
+        }
+        .action-btn.danger {
+            background: rgba(255, 0, 0, 0.2);
+            border-color: rgba(255, 0, 0, 0.3);
+            color: #ff6b6b;
+        }
+        .action-btn.danger:hover {
+            background: rgba(255, 0, 0, 0.3);
+            border-color: rgba(255, 0, 0, 0.5);
+        }
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background: rgba(0, 255, 255, 0.1);
+            color: var(--primary-color);
+        }
+        .stat-icon.online {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+        .stat-icon.offline {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+        .stat-icon.warning {
+            background: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+        }
+        .stat-info h3 {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+        }
+        .stat-info p {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+        .nodes-container {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .nodes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
         }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 10px;
+        .nodes-header h3 {
+            font-size: 1.3rem;
             color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .view-toggle {
+            display: flex;
+            gap: 5px;
+        }
+        .view-btn {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 10px;
+            color: var(--secondary-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .view-btn.active {
+            background: rgba(0, 255, 255, 0.2);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        .nodes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .node-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .node-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .node-card.selected {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+        }
+        .node-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .node-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        .node-type {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+        .node-type.validator {
+            background: rgba(0, 255, 255, 0.2);
+            color: var(--primary-color);
+        }
+        .node-type.miner {
+            background: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+        }
+        .node-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
             font-weight: 500;
         }
-        
-        .form-group input {
+        .node-status.online {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+        .node-status.offline {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+        .node-status.issues {
+            background: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+        }
+        .node-status.checking {
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196f3;
+        }
+        .node-status.unknown {
+            background: rgba(158, 158, 158, 0.2);
+            color: #9e9e9e;
+        }
+        .node-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .info-label {
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+        }
+        .info-value {
+            font-size: 0.9rem;
+            color: var(--text-color);
+            word-break: break-all;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .node-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .node-action-btn {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .node-action-btn:hover {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        .nodes-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .nodes-table th,
+        .nodes-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .nodes-table th {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+        .nodes-table td {
+            color: var(--text-color);
+        }
+        .nodes-table .wallet-cell {
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .nodes-table tr:last-child td {
+            border-bottom: none;
+        }
+        .nodes-table tr {
+            cursor: pointer;
+        }
+        .nodes-table tr:hover {
+            background: rgba(0, 255, 255, 0.05);
+        }
+        .nodes-table tr.selected {
+            background: rgba(0, 255, 255, 0.1);
+        }
+        .table-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .table-action-btn {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .table-action-btn:hover {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
+        .empty-state h3 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        .empty-state p {
+            color: var(--secondary-color);
+            margin-bottom: 30px;
+            max-width: 400px;
+        }
+        .add-node-form {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        .form-group input, .form-group select {
             width: 100%;
             padding: 12px 15px;
             background: rgba(0, 0, 0, 0.3);
@@ -62,177 +586,425 @@
             color: var(--text-color);
             font-family: 'Orbitron', monospace;
             font-size: 1rem;
-        }
-        
-        .monitor-btn {
-            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            border: none;
-            border-radius: 8px;
-            padding: 12px 25px;
-            color: var(--bg-color);
-            font-family: 'Orbitron', monospace;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
             transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            margin-right: 10px;
-            margin-bottom: 10px;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+        .input-info {
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+            margin-top: 5px;
+            font-style: italic;
+        }
+        .form-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
         }
         
-        .monitor-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3);
-        }
-        
-        .node-info {
+        /* Node Details Section */
+        .node-details-section {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 15px;
             padding: 30px;
-            margin-bottom: 30px;
             backdrop-filter: blur(10px);
             box-shadow: 0 8px 32px rgba(0, 255, 255, 0.1);
+            margin-bottom: 40px;
+            animation: fadeIn 1s ease-out 0.3s both;
+            display: none;
         }
         
-        .node-info h3 {
+        .node-details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .node-details-title {
+            font-size: 1.8rem;
             color: var(--primary-color);
-            margin-bottom: 20px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
         }
         
-        .info-grid {
+        .close-details-btn {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 8px 15px;
+            color: #ff6b6b;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .close-details-btn:hover {
+            background: rgba(255, 0, 0, 0.3);
+            border-color: rgba(255, 0, 0, 0.5);
+        }
+        
+        .node-details-content {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-        
-        .info-item {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-            padding: 15px;
-        }
-        
-        .info-label {
-            color: var(--secondary-color);
-            font-size: 0.9rem;
-            margin-bottom: 5px;
-        }
-        
-        .info-value {
-            color: var(--primary-color);
-            font-size: 1.2rem;
-            font-weight: 700;
-        }
-        
-        .charts-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            grid-template-columns: 1fr 1fr;
             gap: 30px;
-            margin-bottom: 30px;
         }
         
-      .chart-container {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 15px;
-    padding: 20px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 8px 32px rgba(0, 255, 255, 0.1);
-    height: 300px; /* Ajout d'une hauteur fixe */
-}
+        .node-details-info {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+        }
         
-        .chart-title {
+        .node-details-info h3 {
+            font-size: 1.3rem;
             color: var(--primary-color);
             margin-bottom: 15px;
             text-transform: uppercase;
             letter-spacing: 1px;
+        }
+        
+        .node-details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .node-detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .node-detail-label {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+        }
+        
+        .node-detail-value {
+            font-size: 1rem;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            word-break: break-all;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        
+        .status-indicator.online {
+            background: #4caf50;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+        
+        .status-indicator.offline {
+            background: #f44336;
+            box-shadow: 0 0 10px rgba(244, 67, 54, 0.5);
+        }
+        
+        .status-indicator.issues {
+            background: #ff9800;
+            box-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
+        }
+        
+        .status-indicator.checking {
+            background: #2196f3;
+            box-shadow: 0 0 10px rgba(33, 150, 243, 0.5);
+        }
+        
+        .status-indicator.unknown {
+            background: #9e9e9e;
+            box-shadow: 0 0 10px rgba(158, 158, 158, 0.5);
+        }
+        
+        .node-details-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .node-details-charts {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .node-details-charts h3 {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .chart-container {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            height: 200px;
+        }
+        
+        .chart-title {
+            font-size: 1rem;
+            color: var(--secondary-color);
+            margin-bottom: 10px;
             text-align: center;
         }
         
-        .node-logs {
-            background: var(--card-bg);
+        .node-details-logs {
+            grid-column: 1 / -1;
+            background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--border-color);
-            border-radius: 15px;
-            padding: 30px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
         }
         
-        .node-logs h3 {
+        .node-details-logs h3 {
+            font-size: 1.3rem;
             color: var(--primary-color);
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
         
         .logs-container {
             background: rgba(0, 0, 0, 0.5);
-            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
             padding: 15px;
-            height: 400px;
+            max-height: 200px;
             overflow-y: auto;
             font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            color: var(--text-color);
-            white-space: pre-wrap;
+            font-size: 0.85rem;
         }
         
-        .log-entry {
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        .log-line {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
         
-        .log-time {
-            color: var(--secondary-color);
-            margin-right: 10px;
+        .log-line:last-child {
+            border-bottom: none;
         }
         
-        .log-level-info {
+        .log-line.info {
+            color: #2196f3;
+        }
+        
+        .log-line.warning {
+            color: #ff9800;
+        }
+        
+        .log-line.error {
+            color: #f44336;
+        }
+        
+        /* Rewards and Blocks Section */
+        .node-details-rewards {
+            grid-column: 1 / -1;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .node-details-rewards h3 {
+            font-size: 1.3rem;
             color: var(--primary-color);
-            margin-right: 10px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
-        .log-level-error {
-            color: var(--danger-color);
-            margin-right: 10px;
+        .rewards-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
         }
         
-        .log-level-warning {
-            color: var(--warning-color);
-            margin-right: 10px;
+        .reward-stat {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .reward-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .reward-label {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+        }
+        
+        .node-details-blocks {
+            grid-column: 1 / -1;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .node-details-blocks h3 {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .blocks-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .block-item {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .block-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .block-number {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .block-time {
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+        }
+        
+        .block-reward {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--success-color);
         }
         
         .hidden {
             display: none;
         }
         
-        .status-online {
-            color: var(--success-color);
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
-        .status-offline {
-            color: var(--danger-color);
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
-        .refresh-indicator {
-            display: inline-block;
-            margin-left: 10px;
-            font-size: 0.8rem;
-            color: var(--secondary-color);
-        }
-        
-        .refresh-indicator i {
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .menu-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .monitor-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-container {
+                min-width: 100%;
+            }
+            
+            .action-buttons {
+                justify-content: center;
+            }
+            
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .nodes-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .node-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .node-actions {
+                justify-content: center;
+            }
+            
+            .node-details-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .rewards-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 </head>
@@ -240,12 +1012,12 @@
     <!-- Three.js Background Container -->
     <div id="three-container"></div>
     
-    <div class="menu-bar" id="menu-bar">
+        <div class="menu-bar" id="menu-bar">
         <div class="menu-container">
-            <button class="menu-button" id="installer-button">
-                <i class="fas fa-cube"></i> Node Installer
+            <button class="menu-button active" id="easy-node-button">
+                <i class="fas fa-cube"></i> Easy Node Validator
             </button>
-            <button class="menu-button active" id="monitor-button">
+            <button class="menu-button" id="monitor-button">
                 <i class="fas fa-chart-line"></i> Node Monitor
             </button>
             <button class="menu-button" id="status-button">
@@ -255,98 +1027,291 @@
     </div>
     
     <div class="container">
-        <div class="monitor-container">
-            <div class="monitor-header">
-                <h1 class="monitor-title">BASEDAI NODE MONITOR</h1>
-                <p class="monitor-subtitle">Monitor your BasedAI validator node in real-time</p>
+        <div class="header">
+            <div class="server-status" id="server-status">
+                <i class="fas fa-circle"></i> <span id="server-status-text">Checking Nodes</span>
+            </div>
+            <h1 class="title">BASEDAI NODE MONITOR</h1>
+            <p class="subtitle">Monitor your BasedAI validator nodes in real-time</p>
+            <div class="sync-indicator" id="sync-indicator">
+                <i class="fas fa-sync-alt"></i> <span id="sync-status">Connecting to network...</span>
+            </div>
+        </div>
+        
+        <div class="monitor-section">
+            <div class="section-title">
+                <h2>Node Status Dashboard</h2>
+                <p>Check the status and performance of your nodes</p>
             </div>
             
-            <div class="node-status-form">
-                <div class="form-group">
-                    <label for="node-name">Node Name</label>
-                    <input type="text" id="node-name" placeholder="Enter your node name">
+            <div class="monitor-controls">
+                <div class="search-container">
+                    <input type="text" id="node-search" placeholder="Search by wallet address or node name...">
+                    <button id="search-btn"><i class="fas fa-search"></i></button>
                 </div>
                 
-                <div class="form-group">
-                    <label for="node-ip">Node IP Address</label>
-                    <input type="text" id="node-ip" placeholder="Enter your node IP address">
+                <div class="action-buttons">
+                    <button id="refresh-btn" class="action-btn">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    <button id="check-all-btn" class="action-btn primary">
+                        <i class="fas fa-check-circle"></i> Check All Nodes
+                    </button>
+                </div>
+            </div>
+            
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-server"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Total Nodes</h3>
+                        <p id="total-nodes">0</p>
+                    </div>
                 </div>
                 
-                <button class="monitor-btn" id="check-status-btn">
-                    <i class="fas fa-search"></i> Check Status
-                    <span class="refresh-indicator hidden" id="refresh-indicator">
-                        <i class="fas fa-sync-alt"></i>
-                    </span>
+                <div class="stat-card">
+                    <div class="stat-icon online">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Online</h3>
+                        <p id="online-nodes">0</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon offline">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Offline</h3>
+                        <p id="offline-nodes">0</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Issues</h3>
+                        <p id="issues-nodes">0</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="nodes-container">
+                <div class="nodes-header">
+                    <h3>Your Nodes</h3>
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="cards"><i class="fas fa-th-large"></i></button>
+                        <button class="view-btn" data-view="table"><i class="fas fa-table"></i></button>
+                    </div>
+                </div>
+                
+                <div class="nodes-list" id="nodes-list">
+                    <!-- Nodes will be dynamically added here -->
+                </div>
+                
+                <div class="empty-state" id="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <h3>No nodes found</h3>
+                    <p>Add nodes to monitor their status</p>
+                    <button id="add-node-btn" class="action-btn primary">
+                        <i class="fas fa-plus"></i> Add Node
+                    </button>
+                </div>
+            </div>
+            
+            <div class="add-node-form hidden" id="add-node-form">
+                <div class="section-title">
+                    <h2>Add New Node</h2>
+                    <p>Enter the details of the node you want to monitor</p>
+                </div>
+                
+                <form id="node-form">
+                    <div class="form-group">
+                        <label for="node-name">
+                            <i class="fas fa-tag"></i> Node Name
+                        </label>
+                        <input type="text" id="node-name" placeholder="my-based-node" required>
+                        <div class="input-info">A unique name to identify your node</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="node-type">
+                            <i class="fas fa-cogs"></i> Node Type
+                        </label>
+                        <select id="node-type" required>
+                            <option value="validator">Validator</option>
+                            <option value="miner">Miner</option>
+                        </select>
+                        <div class="input-info">Select whether this node is a validator or miner</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="wallet-address">
+                            <i class="fas fa-wallet"></i> Wallet Address
+                        </label>
+                        <input type="text" id="wallet-address" placeholder="0x..." required>
+                        <div class="input-info">Your Ethereum address compatible with BasedAI</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="node-ip">
+                            <i class="fas fa-network-wired"></i> Node IP/Domain
+                        </label>
+                        <input type="text" id="node-ip" placeholder="192.168.1.100 or node.example.com" required>
+                        <div class="input-info">IP address or domain name of your node</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="node-port">
+                            <i class="fas fa-port"></i> Port
+                        </label>
+                        <input type="number" id="node-port" placeholder="8080" value="8080" required>
+                        <div class="input-info">Port number for the node API</div>
+                    </div>
+                    
+                    <div class="form-buttons">
+                        <button type="button" id="cancel-add-btn" class="action-btn">Cancel</button>
+                        <button type="submit" class="action-btn primary">
+                            <i class="fas fa-plus"></i> Add Node
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Node Details Section -->
+        <div class="node-details-section" id="node-details-section">
+            <div class="node-details-header">
+                <h2 class="node-details-title" id="details-node-name">Node Details</h2>
+                <button class="close-details-btn" id="close-details-btn">
+                    <i class="fas fa-times"></i> Close
                 </button>
-                
-                <button class="monitor-btn" id="view-logs-btn">
-                    <i class="fas fa-file-alt"></i> View Logs
-                </button>
-                
-                <button class="monitor-btn" id="restart-node-btn">
-                    <i class="fas fa-redo"></i> Restart Node
-                </button>
             </div>
             
-            <div class="node-info hidden" id="node-info">
-                <h3>Node Information</h3>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <div class="info-label">Node Name</div>
-                        <div class="info-value" id="info-node-name">-</div>
+            <div class="node-details-content">
+                <div class="node-details-info">
+                    <h3>Information</h3>
+                    <div class="node-details-grid">
+                        <div class="node-detail-item">
+                            <div class="node-detail-label">Status</div>
+                            <div class="node-detail-value" id="details-status">
+                                <span class="status-indicator"></span>
+                                <span class="status-text">Checking...</span>
+                            </div>
+                        </div>
+                        
+                        <div class="node-detail-item">
+                            <div class="node-detail-label">Type</div>
+                            <div class="node-detail-value" id="details-type">
+                                <i class="fas fa-cogs"></i>
+                                <span>Validator</span>
+                            </div>
+                        </div>
+                        
+                        <div class="node-detail-item">
+                            <div class="node-detail-label">Wallet Address</div>
+                            <div class="node-detail-value" id="details-wallet">0x...</div>
+                        </div>
+                        
+                        <div class="node-detail-item">
+                            <div class="node-detail-label">IP/Domain</div>
+                            <div class="node-detail-value" id="details-ip">192.168.1.100</div>
+                        </div>
+                        
+                        <div class="node-detail-item">
+                            <div class="node-detail-label">Port</div>
+                            <div class="node-detail-value" id="details-port">8080</div>
+                        </div>
+                        
+                        <div class="node-detail-item">
+                            <div class="node-detail-label">Uptime</div>
+                            <div class="node-detail-value" id="details-uptime">--</div>
+                        </div>
+                        
+                        <div class="node-detail-item">
+                            <div class="node-detail-label">Last Checked</div>
+                            <div class="node-detail-value" id="details-last-checked">--</div>
+                        </div>
                     </div>
-                    <div class="info-item">
-                        <div class="info-label">Status</div>
-                        <div class="info-value" id="info-node-status">-</div>
+                    
+                    <div class="node-details-actions">
+                        <button id="refresh-details-btn" class="action-btn">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                        <button id="remove-details-btn" class="action-btn danger">
+                            <i class="fas fa-trash"></i> Remove Node
+                        </button>
                     </div>
-                    <div class="info-item">
-                        <div class="info-label">IP Address</div>
-                        <div class="info-value" id="info-node-ip">-</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Port</div>
-                        <div class="info-value" id="info-node-port">30333</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Uptime</div>
-                        <div class="info-value" id="info-node-uptime">-</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Last Block</div>
-                        <div class="info-value" id="info-node-block">-</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="charts-section hidden" id="charts-section">
-                <div class="chart-container">
-                    <h3 class="chart-title">Rewards Accumulated</h3>
-                    <canvas id="rewards-chart"></canvas>
                 </div>
                 
-                <div class="chart-container">
-                    <h3 class="chart-title">Block Validation Rate</h3>
-                    <canvas id="validation-chart"></canvas>
+                <div class="node-details-charts">
+                    <h3>Performance Metrics</h3>
+                    <div class="charts-container">
+                        <div class="chart-container">
+                            <div class="chart-title">CPU Usage</div>
+                            <canvas id="cpu-chart"></canvas>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <div class="chart-title">Memory Usage</div>
+                            <canvas id="memory-chart"></canvas>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <div class="chart-title">Network I/O</div>
+                            <canvas id="network-chart"></canvas>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <div class="chart-title">Disk Usage</div>
+                            <canvas id="disk-chart"></canvas>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="chart-container">
-                    <h3 class="chart-title">Network Performance</h3>
-                    <canvas id="performance-chart"></canvas>
+                <div class="node-details-rewards">
+                    <h3>Rewards & Contribution</h3>
+                    <div class="rewards-stats">
+                        <div class="reward-stat">
+                            <div class="reward-value" id="total-rewards">0</div>
+                            <div class="reward-label">Total Rewards (BASED)</div>
+                        </div>
+                        <div class="reward-stat">
+                            <div class="reward-value" id="daily-rewards">0</div>
+                            <div class="reward-label">Daily Rewards (BASED)</div>
+                        </div>
+                        <div class="reward-stat">
+                            <div class="reward-value" id="blocks-validated">0</div>
+                            <div class="reward-label">Blocks Validated</div>
+                        </div>
+                        <div class="reward-stat">
+                            <div class="reward-value" id="validation-rate">0%</div>
+                            <div class="reward-label">Validation Rate</div>
+                        </div>
+                    </div>
+                    <div class="chart-container" style="height: 250px;">
+                        <div class="chart-title">Rewards History</div>
+                        <canvas id="rewards-chart"></canvas>
+                    </div>
                 </div>
                 
-                <div class="chart-container">
-                    <h3 class="chart-title">Resource Usage</h3>
-                    <canvas id="resource-chart"></canvas>
+                <div class="node-details-blocks">
+                    <h3>Recent Blocks Validated</h3>
+                    <div class="blocks-list" id="blocks-list">
+                        <!-- Blocks will be dynamically added here -->
+                    </div>
                 </div>
-            </div>
-            
-            <div class="node-logs hidden" id="node-logs">
-                <h3>Node Logs</h3>
-                <div class="logs-container" id="logs-container">
-                    <div class="log-entry">
-                        <span class="log-time">--:--:--</span>
-                        <span class="log-level-info">INFO</span>
-                        <span>Enter a node name and click "View Logs" to see logs</span>
+                
+                <div class="node-details-logs">
+                    <h3>Recent Logs</h3>
+                    <div class="logs-container" id="details-logs">
+                        <div class="log-line">Loading logs...</div>
                     </div>
                 </div>
             </div>
