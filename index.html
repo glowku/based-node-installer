@@ -103,18 +103,15 @@
         <div class="command-section hidden" id="command-section">
             <div class="section-title">
                 <h2>Installation Command</h2>
-                <p>Run this command in your terminal to install your node</p>
+                <p>Run these commands in your terminal to install your node</p>
             </div>
             
             <div class="command-container">
                 <div class="command-header">
-                    <span>Your personalized command:</span>
-                    <button id="copy-btn" class="copy-btn">
-                        <i class="fas fa-copy"></i> Copy
-                    </button>
+                    <span>Your personalized commands:</span>
                 </div>
-                <div class="command-box">
-                    <code id="install-command"></code>
+                <div class="command-steps" id="command-steps">
+                    <!-- Command steps will be generated here -->
                 </div>
             </div>
             
@@ -128,151 +125,555 @@
                 
                 <div class="tab-content active" id="linux-tab">
                     <h4>Linux Instructions:</h4>
-                    <div class="command-line">
-                        <code># Download the script first</code>
+                    
+                    <div class="comment-block">
+                        <i class="fas fa-comment-alt"></i>
+                        <span>Download the script first</span>
                     </div>
-                    <div class="command-line">
-                        <code>curl -sSL https://raw.githubusercontent.com/glowku/based-node-installer/main/install.sh -o install.sh</code>
-                        <button class="copy-line-btn"><i class="fas fa-copy"></i></button>
+                    
+                    <div class="command-wrapper">
+                        <div class="command-terminal">
+                            <div class="terminal-header">
+                                <div class="terminal-controls">
+                                    <span class="terminal-dot terminal-red"></span>
+                                    <span class="terminal-dot terminal-yellow"></span>
+                                    <span class="terminal-dot terminal-green"></span>
+                                </div>
+                                <div class="terminal-title">terminal</div>
+                            </div>
+                            <div class="terminal-body">
+                                <div class="terminal-line">
+                                    <span class="terminal-prompt">$</span>
+                                    <code class="terminal-command">curl -sSL https://raw.githubusercontent.com/glowku/based-node-installer/main/install.sh -o install.sh</code>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="copy-terminal-btn" data-command="curl -sSL https://raw.githubusercontent.com/glowku/based-node-installer/main/install.sh -o install.sh">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
                     </div>
-                    <div class="command-line">
-                        <code># Convert Windows line endings to Linux</code>
+                    
+                    <div class="comment-block">
+                        <i class="fas fa-comment-alt"></i>
+                        <span>Convert Windows line endings to Linux</span>
                     </div>
-                    <div class="command-line">
-                        <code>sudo sed -i 's/\r$//' install.sh</code>
-                        <button class="copy-line-btn"><i class="fas fa-copy"></i></button>
+                    
+                    <div class="command-wrapper">
+                        <div class="command-terminal">
+                            <div class="terminal-header">
+                                <div class="terminal-controls">
+                                    <span class="terminal-dot terminal-red"></span>
+                                    <span class="terminal-dot terminal-yellow"></span>
+                                    <span class="terminal-dot terminal-green"></span>
+                                </div>
+                                <div class="terminal-title">terminal</div>
+                            </div>
+                            <div class="terminal-body">
+                                <div class="terminal-line">
+                                    <span class="terminal-prompt">$</span>
+                                    <code class="terminal-command">sudo sed -i 's/\r$//' install.sh</code>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="copy-terminal-btn" data-command="sudo sed -i 's/\r$//' install.sh">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
                     </div>
-                    <div class="command-line">
-                        <code># Make the script executable</code>
+                    
+                    <div class="comment-block">
+                        <i class="fas fa-comment-alt"></i>
+                        <span>Make the script executable</span>
                     </div>
-                    <div class="command-line">
-                        <code>sudo chmod +x install.sh</code>
-                        <button class="copy-line-btn"><i class="fas fa-copy"></i></button>
+                    
+                    <div class="command-wrapper">
+                        <div class="command-terminal">
+                            <div class="terminal-header">
+                                <div class="terminal-controls">
+                                    <span class="terminal-dot terminal-red"></span>
+                                    <span class="terminal-dot terminal-yellow"></span>
+                                    <span class="terminal-dot terminal-green"></span>
+                                </div>
+                                <div class="terminal-title">terminal</div>
+                            </div>
+                            <div class="terminal-body">
+                                <div class="terminal-line">
+                                    <span class="terminal-prompt">$</span>
+                                    <code class="terminal-command">sudo chmod +x install.sh</code>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="copy-terminal-btn" data-command="sudo chmod +x install.sh">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
                     </div>
-                    <div class="command-line">
-                        <code># Run it with your parameters</code>
+                    
+                    <div class="comment-block">
+                        <i class="fas fa-comment-alt"></i>
+                        <span>Run it with your parameters</span>
                     </div>
-                    <div class="command-line">
-                        <code>./install.sh "WALLET_ADDRESS" "NODE_NAME" "STAKE_AMOUNT" "SERVER_TYPE" "OS"</code>
-                        <button class="copy-line-btn"><i class="fas fa-copy"></i></button>
+                    
+                    <div class="command-wrapper">
+                        <div class="command-terminal">
+                            <div class="terminal-header">
+                                <div class="terminal-controls">
+                                    <span class="terminal-dot terminal-red"></span>
+                                    <span class="terminal-dot terminal-yellow"></span>
+                                    <span class="terminal-dot terminal-green"></span>
+                                </div>
+                                <div class="terminal-title">terminal</div>
+                            </div>
+                            <div class="terminal-body">
+                                <div class="terminal-line">
+                                    <span class="terminal-prompt">$</span>
+                                    <code class="terminal-command">./install.sh "WALLET_ADDRESS" "NODE_NAME" "STAKE_AMOUNT" "SERVER_TYPE" "OS"</code>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="copy-terminal-btn" data-command="./install.sh "WALLET_ADDRESS" "NODE_NAME" "STAKE_AMOUNT" "SERVER_TYPE" "OS"">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
                     </div>
                     
                     <h4>After Installation:</h4>
-                    <div class="command-example">
-                        <code>sudo systemctl status basedai</code>
-                        <span class="command-desc">Check node status</span>
-                        <button class="copy-example-btn"><i class="fas fa-copy"></i> Copy</button>
+                    
+                    <div class="command-wrapper">
+                        <div class="command-terminal">
+                            <div class="terminal-header">
+                                <div class="terminal-controls">
+                                    <span class="terminal-dot terminal-red"></span>
+                                    <span class="terminal-dot terminal-yellow"></span>
+                                    <span class="terminal-dot terminal-green"></span>
+                                </div>
+                                <div class="terminal-title">terminal</div>
+                            </div>
+                            <div class="terminal-body">
+                                <div class="terminal-line">
+                                    <span class="terminal-prompt">$</span>
+                                    <code class="terminal-command">sudo systemctl status basedai</code>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="command-info">
+                            <div class="command-desc">Check node status</div>
+                            <button class="copy-terminal-btn" data-command="sudo systemctl status basedai">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
                     </div>
-                    <div class="command-example">
-                        <code>sudo journalctl -u basedai -f</code>
-                        <span class="command-desc">View node logs</span>
-                        <button class="copy-example-btn"><i class="fas fa-copy"></i> Copy</button>
+                    
+                    <div class="command-wrapper">
+                        <div class="command-terminal">
+                            <div class="terminal-header">
+                                <div class="terminal-controls">
+                                    <span class="terminal-dot terminal-red"></span>
+                                    <span class="terminal-dot terminal-yellow"></span>
+                                    <span class="terminal-dot terminal-green"></span>
+                                </div>
+                                <div class="terminal-title">terminal</div>
+                            </div>
+                            <div class="terminal-body">
+                                <div class="terminal-line">
+                                    <span class="terminal-prompt">$</span>
+                                    <code class="terminal-command">sudo journalctl -u basedai -f</code>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="command-info">
+                            <div class="command-desc">View node logs</div>
+                            <button class="copy-terminal-btn" data-command="sudo journalctl -u basedai -f">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
                     </div>
-                    <div class="command-example">
-                        <code>sudo systemctl restart basedai</code>
-                        <span class="command-desc">Restart node</span>
-                        <button class="copy-example-btn"><i class="fas fa-copy"></i> Copy</button>
+                    
+                    <div class="command-wrapper">
+                        <div class="command-terminal">
+                            <div class="terminal-header">
+                                <div class="terminal-controls">
+                                    <span class="terminal-dot terminal-red"></span>
+                                    <span class="terminal-dot terminal-yellow"></span>
+                                    <span class="terminal-dot terminal-green"></span>
+                                </div>
+                                <div class="terminal-title">terminal</div>
+                            </div>
+                            <div class="terminal-body">
+                                <div class="terminal-line">
+                                    <span class="terminal-prompt">$</span>
+                                    <code class="terminal-command">sudo systemctl restart basedai</code>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="command-info">
+                            <div class="command-desc">Restart node</div>
+                            <button class="copy-terminal-btn" data-command="sudo systemctl restart basedai">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="tab-content" id="wsl-tab">
                     <h4>Windows (WSL) Instructions:</h4>
-                    <div class="command-line">
-                        <code># Open PowerShell as Administrator</code>
+                    
+                    <div class="comment-block">
+                        <i class="fas fa-comment-alt"></i>
+                        <span>Open PowerShell as Administrator</span>
                     </div>
-                    <div class="command-line">
-                        <code># Download the script first</code>
+                    
+                    <div class="comment-block">
+                        <i class="fas fa-comment-alt"></i>
+                        <span>Download the script first</span>
                     </div>
-                    <div class="command-line">
-                        <code>Invoke-WebRequest -Uri "https://raw.githubusercontent.com/glowku/based-node-installer/main/install.sh" -OutFile "install.sh"</code>
-                        <button class="copy-line-btn"><i class="fas fa-copy"></i></button>
+                    
+                    <div class="command-wrapper">
+                        <div class="command-terminal">
+                            <div class="terminal-header">
+                                <div class="terminal-controls">
+                                    <span class="terminal-dot terminal-red"></span>
+                                    <span class="terminal-dot terminal-yellow"></span>
+                                    <span class="terminal-dot terminal-green"></span>
+                                </div>
+                                <div class="terminal-title">powershell</div>
+                            </div>
+                            <div class="terminal-body">
+                                <div class="terminal-line">
+                                    <span class="terminal-prompt">PS></span>
+                                    <code class="terminal-command">Invoke-WebRequest -Uri "https://raw.githubusercontent.com/glowku/based-node-installer/main/install.sh" -OutFile "install.sh"</code>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="copy-terminal-btn" data-command="Invoke-WebRequest -Uri "https://raw.githubusercontent.com/glowku/based-node-installer/main/install.sh" -OutFile "install.sh"">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
                     </div>
-                    <div class="command-line">
-                        <code># Convert Windows line endings to Linux</code>
+                    
+                    <div class="comment-block">
+                        <i class="fas fa-comment-alt"></i>
+                        <span>Convert Windows line endings to Linux</span>
                     </div>
-                    <div class="command-line">
-                        <code>(Get-Content install.sh) | Set-Content -NoNewline install.sh</code>
-                        <button class="copy-line-btn"><i class="fas fa-copy"></i></button>
+                    
+                    <div class="command-wrapper">
+                        <div class="command-terminal">
+                            <div class="terminal-header">
+                                <div class="terminal-controls">
+                                    <span class="terminal-dot terminal-red"></span>
+                                    <span class="terminal-dot terminal-yellow"></span>
+                                    <span class="terminal-dot terminal-green"></span>
+                                </div>
+                                <div class="terminal-title">powershell</div>
+                            </div>
+                            <div class="terminal-body">
+                                <div class="terminal-line">
+                                    <span class="terminal-prompt">PS></span>
+                                    <code class="terminal-command">(Get-Content install.sh) | Set-Content -NoNewline install.sh</code>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="copy-terminal-btn" data-command="(Get-Content install.sh) | Set-Content -NoNewline install.sh">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
                     </div>
-                    <div class="command-line">
-                        <code># Launch WSL</code>
+                    
+                    <div class="comment-block">
+                        <i class="fas fa-comment-alt"></i>
+                        <span>Launch WSL</span>
                     </div>
-                    <div class="command-line">
-                        <code>wsl</code>
-                        <button class="copy-line-btn"><i class="fas fa-copy"></i></button>
+                    
+                    <div class="command-wrapper">
+                        <div class="command-terminal">
+                            <div class="terminal-header">
+                                <div class="terminal-controls">
+                                    <span class="terminal-dot terminal-red"></span>
+                                    <span class="terminal-dot terminal-yellow"></span>
+                                    <span class="terminal-dot terminal-green"></span>
+                                </div>
+                                <div class="terminal-title">powershell</div>
+                            </div>
+                            <div class="terminal-body">
+                                <div class="terminal-line">
+                                    <span class="terminal-prompt">PS></span>
+                                    <code class="terminal-command">wsl</code>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="copy-terminal-btn" data-command="wsl">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
                     </div>
-                    <div class="command-line">
-                        <code># Run it in WSL</code>
+                    
+                    <div class="comment-block">
+                        <i class="fas fa-comment-alt"></i>
+                        <span>Run it in WSL</span>
                     </div>
-                    <div class="command-line">
-                        <code>./install.sh "WALLET_ADDRESS" "NODE_NAME" "STAKE_AMOUNT" "SERVER_TYPE" "OS"</code>
-                        <button class="copy-line-btn"><i class="fas fa-copy"></i></button>
+                    
+                    <div class="command-wrapper">
+                        <div class="command-terminal">
+                            <div class="terminal-header">
+                                <div class="terminal-controls">
+                                    <span class="terminal-dot terminal-red"></span>
+                                    <span class="terminal-dot terminal-yellow"></span>
+                                    <span class="terminal-dot terminal-green"></span>
+                                </div>
+                                <div class="terminal-title">wsl</div>
+                            </div>
+                            <div class="terminal-body">
+                                <div class="terminal-line">
+                                    <span class="terminal-prompt">$</span>
+                                    <code class="terminal-command">./install.sh "WALLET_ADDRESS" "NODE_NAME" "STAKE_AMOUNT" "SERVER_TYPE" "OS"</code>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="copy-terminal-btn" data-command="./install.sh "WALLET_ADDRESS" "NODE_NAME" "STAKE_AMOUNT" "SERVER_TYPE" "OS"">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
                     </div>
                     
                     <h4>After Installation:</h4>
-                    <div class="command-example">
-                        <code>sudo systemctl status basedai</code>
-                        <span class="command-desc">Check node status</span>
-                        <button class="copy-example-btn"><i class="fas fa-copy"></i> Copy</button>
+                    
+                    <div class="command-wrapper">
+                        <div class="command-terminal">
+                            <div class="terminal-header">
+                                <div class="terminal-controls">
+                                    <span class="terminal-dot terminal-red"></span>
+                                    <span class="terminal-dot terminal-yellow"></span>
+                                    <span class="terminal-dot terminal-green"></span>
+                                </div>
+                                <div class="terminal-title">wsl</div>
+                            </div>
+                            <div class="terminal-body">
+                                <div class="terminal-line">
+                                    <span class="terminal-prompt">$</span>
+                                    <code class="terminal-command">sudo systemctl status basedai</code>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="command-info">
+                            <div class="command-desc">Check node status</div>
+                            <button class="copy-terminal-btn" data-command="sudo systemctl status basedai">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
                     </div>
-                    <div class="command-example">
-                        <code>sudo journalctl -u basedai -f</code>
-                        <span class="command-desc">View node logs</span>
-                        <button class="copy-example-btn"><i class="fas fa-copy"></i> Copy</button>
+                    
+                    <div class="command-wrapper">
+                        <div class="command-terminal">
+                            <div class="terminal-header">
+                                <div class="terminal-controls">
+                                    <span class="terminal-dot terminal-red"></span>
+                                    <span class="terminal-dot terminal-yellow"></span>
+                                    <span class="terminal-dot terminal-green"></span>
+                                </div>
+                                <div class="terminal-title">wsl</div>
+                            </div>
+                            <div class="terminal-body">
+                                <div class="terminal-line">
+                                    <span class="terminal-prompt">$</span>
+                                    <code class="terminal-command">sudo journalctl -u basedai -f</code>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="command-info">
+                            <div class="command-desc">View node logs</div>
+                            <button class="copy-terminal-btn" data-command="sudo journalctl -u basedai -f">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="tab-content" id="macos-tab">
                     <h4>macOS Instructions:</h4>
-                    <div class="command-line">
-                        <code># Open Terminal</code>
+                    
+                    <div class="comment-block">
+                        <i class="fas fa-comment-alt"></i>
+                        <span>Open Terminal</span>
                     </div>
-                    <div class="command-line">
-                        <code># Install Homebrew if not already installed</code>
+                    
+                    <div class="comment-block">
+                        <i class="fas fa-comment-alt"></i>
+                        <span>Install Homebrew if not already installed</span>
                     </div>
-                    <div class="command-line">
-                        <code>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code>
-                        <button class="copy-line-btn"><i class="fas fa-copy"></i></button>
+                    
+                    <div class="command-wrapper">
+                        <div class="command-terminal">
+                            <div class="terminal-header">
+                                <div class="terminal-controls">
+                                    <span class="terminal-dot terminal-red"></span>
+                                    <span class="terminal-dot terminal-yellow"></span>
+                                    <span class="terminal-dot terminal-green"></span>
+                                </div>
+                                <div class="terminal-title">terminal</div>
+                            </div>
+                            <div class="terminal-body">
+                                <div class="terminal-line">
+                                    <span class="terminal-prompt">$</span>
+                                    <code class="terminal-command">/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="copy-terminal-btn" data-command="/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
                     </div>
-                    <div class="command-line">
-                        <code># Download the script first</code>
+                    
+                    <div class="comment-block">
+                        <i class="fas fa-comment-alt"></i>
+                        <span>Download the script first</span>
                     </div>
-                    <div class="command-line">
-                        <code>curl -sSL https://raw.githubusercontent.com/glowku/based-node-installer/main/install.sh -o install.sh</code>
-                        <button class="copy-line-btn"><i class="fas fa-copy"></i></button>
+                    
+                    <div class="command-wrapper">
+                        <div class="command-terminal">
+                            <div class="terminal-header">
+                                <div class="terminal-controls">
+                                    <span class="terminal-dot terminal-red"></span>
+                                    <span class="terminal-dot terminal-yellow"></span>
+                                    <span class="terminal-dot terminal-green"></span>
+                                </div>
+                                <div class="terminal-title">terminal</div>
+                            </div>
+                            <div class="terminal-body">
+                                <div class="terminal-line">
+                                    <span class="terminal-prompt">$</span>
+                                    <code class="terminal-command">curl -sSL https://raw.githubusercontent.com/glowku/based-node-installer/main/install.sh -o install.sh</code>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="copy-terminal-btn" data-command="curl -sSL https://raw.githubusercontent.com/glowku/based-node-installer/main/install.sh -o install.sh">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
                     </div>
-                    <div class="command-line">
-                        <code># Convert Windows line endings to Linux</code>
+                    
+                    <div class="comment-block">
+                        <i class="fas fa-comment-alt"></i>
+                        <span>Convert Windows line endings to Linux</span>
                     </div>
-                    <div class="command-line">
-                        <code>sed -i 's/\r$//' install.sh</code>
-                        <button class="copy-line-btn"><i class="fas fa-copy"></i></button>
+                    
+                    <div class="command-wrapper">
+                        <div class="command-terminal">
+                            <div class="terminal-header">
+                                <div class="terminal-controls">
+                                    <span class="terminal-dot terminal-red"></span>
+                                    <span class="terminal-dot terminal-yellow"></span>
+                                    <span class="terminal-dot terminal-green"></span>
+                                </div>
+                                <div class="terminal-title">terminal</div>
+                            </div>
+                            <div class="terminal-body">
+                                <div class="terminal-line">
+                                    <span class="terminal-prompt">$</span>
+                                    <code class="terminal-command">sed -i 's/\r$//' install.sh</code>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="copy-terminal-btn" data-command="sed -i 's/\r$//' install.sh">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
                     </div>
-                    <div class="command-line">
-                        <code># Make the script executable</code>
+                    
+                    <div class="comment-block">
+                        <i class="fas fa-comment-alt"></i>
+                        <span>Make the script executable</span>
                     </div>
-                    <div class="command-line">
-                        <code>chmod +x install.sh</code>
-                        <button class="copy-line-btn"><i class="fas fa-copy"></i></button>
+                    
+                    <div class="command-wrapper">
+                        <div class="command-terminal">
+                            <div class="terminal-header">
+                                <div class="terminal-controls">
+                                    <span class="terminal-dot terminal-red"></span>
+                                    <span class="terminal-dot terminal-yellow"></span>
+                                    <span class="terminal-dot terminal-green"></span>
+                                </div>
+                                <div class="terminal-title">terminal</div>
+                            </div>
+                            <div class="terminal-body">
+                                <div class="terminal-line">
+                                    <span class="terminal-prompt">$</span>
+                                    <code class="terminal-command">chmod +x install.sh</code>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="copy-terminal-btn" data-command="chmod +x install.sh">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
                     </div>
-                    <div class="command-line">
-                        <code># Run it with your parameters</code>
+                    
+                    <div class="comment-block">
+                        <i class="fas fa-comment-alt"></i>
+                        <span>Run it with your parameters</span>
                     </div>
-                    <div class="command-line">
-                        <code>./install.sh "WALLET_ADDRESS" "NODE_NAME" "STAKE_AMOUNT" "SERVER_TYPE" "OS"</code>
-                        <button class="copy-line-btn"><i class="fas fa-copy"></i></button>
+                    
+                    <div class="command-wrapper">
+                        <div class="command-terminal">
+                            <div class="terminal-header">
+                                <div class="terminal-controls">
+                                    <span class="terminal-dot terminal-red"></span>
+                                    <span class="terminal-dot terminal-yellow"></span>
+                                    <span class="terminal-dot terminal-green"></span>
+                                </div>
+                                <div class="terminal-title">terminal</div>
+                            </div>
+                            <div class="terminal-body">
+                                <div class="terminal-line">
+                                    <span class="terminal-prompt">$</span>
+                                    <code class="terminal-command">./install.sh "WALLET_ADDRESS" "NODE_NAME" "STAKE_AMOUNT" "SERVER_TYPE" "OS"</code>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="copy-terminal-btn" data-command="./install.sh "WALLET_ADDRESS" "NODE_NAME" "STAKE_AMOUNT" "SERVER_TYPE" "OS"">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
                     </div>
                     
                     <h4>After Installation:</h4>
-                    <div class="command-example">
-                        <code>sudo launchctl list | grep basedai</code>
-                        <span class="command-desc">Check node status</span>
-                        <button class="copy-example-btn"><i class="fas fa-copy"></i> Copy</button>
+                    
+                    <div class="command-wrapper">
+                        <div class="command-terminal">
+                            <div class="terminal-header">
+                                <div class="terminal-controls">
+                                    <span class="terminal-dot terminal-red"></span>
+                                    <span class="terminal-dot terminal-yellow"></span>
+                                    <span class="terminal-dot terminal-green"></span>
+                                </div>
+                                <div class="terminal-title">terminal</div>
+                            </div>
+                            <div class="terminal-body">
+                                <div class="terminal-line">
+                                    <span class="terminal-prompt">$</span>
+                                    <code class="terminal-command">sudo launchctl list | grep basedai</code>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="command-info">
+                            <div class="command-desc">Check node status</div>
+                            <button class="copy-terminal-btn" data-command="sudo launchctl list | grep basedai">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
                     </div>
-                    <div class="command-example">
-                        <code>tail -f /opt/basedai/logs/basedai.log</code>
-                        <span class="command-desc">View node logs</span>
-                        <button class="copy-example-btn"><i class="fas fa-copy"></i> Copy</button>
+                    
+                    <div class="command-wrapper">
+                        <div class="command-terminal">
+                            <div class="terminal-header">
+                                <div class="terminal-controls">
+                                    <span class="terminal-dot terminal-red"></span>
+                                    <span class="terminal-dot terminal-yellow"></span>
+                                    <span class="terminal-dot terminal-green"></span>
+                                </div>
+                                <div class="terminal-title">terminal</div>
+                            </div>
+                            <div class="terminal-body">
+                                <div class="terminal-line">
+                                    <span class="terminal-prompt">$</span>
+                                    <code class="terminal-command">tail -f /opt/basedai/logs/basedai.log</code>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="command-info">
+                            <div class="command-desc">View node logs</div>
+                            <button class="copy-terminal-btn" data-command="tail -f /opt/basedai/logs/basedai.log">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

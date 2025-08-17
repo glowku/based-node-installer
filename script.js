@@ -4,8 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const installForm = document.getElementById('install-form');
     const commandSection = document.getElementById('command-section');
-    const installCommand = document.getElementById('install-command');
-    const copyBtn = document.getElementById('copy-btn');
+    const commandSteps = document.getElementById('command-steps');
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
     
@@ -29,18 +28,28 @@ document.addEventListener('DOMContentLoaded', function() {
         const serverType = document.getElementById('server-type').value;
         const operatingSystem = document.getElementById('operating-system').value;
         
-        // Generate installation command with proper line breaks
-        const command = `# Download the script first
-curl -sSL https://raw.githubusercontent.com/glowku/based-node-installer/main/install.sh -o install.sh
-# Convert Windows line endings to Linux
-sed -i 's/\\r$//' install.sh
-# Make the script executable
-chmod +x install.sh
-# Run it with your parameters
-./install.sh "${walletAddress}" "${nodeName}" "${stakeAmount}" "${serverType}" "${operatingSystem}"`;
+        // Generate installation commands
+        const commands = [
+            {
+                description: "Download the script",
+                command: "curl -sSL https://raw.githubusercontent.com/glowku/based-node-installer/main/install.sh -o install.sh"
+            },
+            {
+                description: "Convert Windows line endings to Linux",
+                command: "sed -i 's/\\r$//' install.sh"
+            },
+            {
+                description: "Make the script executable",
+                command: "chmod +x install.sh"
+            },
+            {
+                description: "Run it with your parameters",
+                command: `./install.sh "${walletAddress}" "${nodeName}" "${stakeAmount}" "${serverType}" "${operatingSystem}"`
+            }
+        ];
         
-        // Display command with animation
-        animateCommandGeneration(command);
+        // Display commands with animation
+        animateCommandGeneration(commands);
         
         // Show command section
         commandSection.classList.remove('hidden');
@@ -49,19 +58,7 @@ chmod +x install.sh
         commandSection.scrollIntoView({ behavior: 'smooth' });
         
         // Show notification
-        showNotification('Command generated successfully!', 'success');
-    });
-    
-    // Copy button handler
-    copyBtn.addEventListener('click', function() {
-        // Copy command to clipboard
-        navigator.clipboard.writeText(installCommand.textContent).then(function() {
-            // Show notification
-            showNotification('Command copied to clipboard!', 'success');
-        }).catch(function(err) {
-            // Show error notification
-            showNotification('Error copying command: ' + err, 'error');
-        });
+        showNotification('Commands generated successfully!', 'success');
     });
     
     // Tab switching functionality
@@ -78,100 +75,162 @@ chmod +x install.sh
             document.getElementById(`${targetTab}-tab`).classList.add('active');
             
             // Re-add copy buttons after tab switch
-            setTimeout(addCopyButtonsToCommandLines, 100);
+            setTimeout(initializeCopyButtons, 100);
         });
     });
     
-    // Add copy buttons to command lines
-    function addCopyButtonsToCommandLines() {
-        // For command lines in the installation command section
-        const commandLines = document.querySelectorAll('.command-line');
-        commandLines.forEach(line => {
-            // Remove existing copy button if any
-            const existingBtn = line.querySelector('.copy-line-btn');
-            if (existingBtn) {
-                existingBtn.remove();
-            }
-            
-            const codeElement = line.querySelector('code');
-            if (!codeElement) return;
-            
-            // Check if it's a comment line (starts with #)
-            const isComment = codeElement.textContent.trim().startsWith('#');
-            
-            // Only add copy button if it's not a comment
-            if (!isComment) {
-                const copyBtn = document.createElement('button');
-                copyBtn.className = 'copy-line-btn';
-                copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
-                
-                copyBtn.addEventListener('click', function() {
-                    navigator.clipboard.writeText(codeElement.textContent).then(function() {
-                        showNotification('Command copied to clipboard!', 'success');
-                    }).catch(function(err) {
-                        showNotification('Error copying command: ' + err, 'error');
-                    });
-                });
-                
-                line.appendChild(copyBtn);
-            }
-        });
-        
-        // For command examples (like sudo systemctl status basedai)
-        const commandExamples = document.querySelectorAll('.command-example');
-        commandExamples.forEach(example => {
-            // Skip if already has a copy button
-            if (example.querySelector('.copy-example-btn')) return;
-            
-            const codeElement = example.querySelector('code');
-            if (!codeElement) return;
-            
-            const copyBtn = document.createElement('button');
-            copyBtn.className = 'copy-example-btn';
-            copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
-            
-            copyBtn.addEventListener('click', function() {
-                navigator.clipboard.writeText(codeElement.textContent).then(function() {
-                    showNotification('Command copied to clipboard!', 'success');
-                }).catch(function(err) {
-                    showNotification('Error copying command: ' + err, 'error');
-                });
-            });
-            
-            example.appendChild(copyBtn);
-        });
-    }
-    
-    // Call the function to add copy buttons
-    addCopyButtonsToCommandLines();
-    
-    function animateCommandGeneration(command) {
-        // Clear existing command
-        installCommand.textContent = '';
+    // Animate command generation
+    function animateCommandGeneration(commands) {
+        // Clear existing commands
+        commandSteps.innerHTML = '';
         
         // Animate cube during command generation
         animateCubeDuringGeneration();
         
-        // Create typing animation
-        let i = 0;
-        const typeWriter = setInterval(() => {
-            if (i < command.length) {
-                installCommand.textContent += command.charAt(i);
-                i++;
+        // Create command steps with animation
+        commands.forEach((cmd, index) => {
+            setTimeout(() => {
+                const stepElement = createCommandStep(cmd);
+                commandSteps.appendChild(stepElement);
                 
-                // Keep command color consistent
-                installCommand.style.color = '#00ff00';
-            } else {
-                clearInterval(typeWriter);
+                // Initialize copy buttons for this step
+                initializeStepCopyButtons(stepElement);
                 
-                // Add glow effect
-                installCommand.style.textShadow = '0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00';
-                
-                // Stop cube animation
-                stopCubeAnimation();
-            }
-        }, 20);
+                // Stop cube animation after last command
+                if (index === commands.length - 1) {
+                    setTimeout(stopCubeAnimation, 500);
+                }
+            }, index * 300); // Stagger animation
+        });
     }
+    
+    // Initialize copy buttons for a specific step
+    function initializeStepCopyButtons(stepElement) {
+        const copyBtn = stepElement.querySelector('.copy-terminal-btn');
+        if (copyBtn) {
+            // Remove existing event listeners
+            const newCopyBtn = copyBtn.cloneNode(true);
+            copyBtn.parentNode.replaceChild(newCopyBtn, copyBtn);
+            
+            // Add event listener
+            newCopyBtn.addEventListener('click', function() {
+                const command = this.getAttribute('data-command');
+                if (command) {
+                    navigator.clipboard.writeText(command).then(() => {
+                        // Show success feedback
+                        const originalHTML = this.innerHTML;
+                        this.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                        this.classList.add('copied');
+                        
+                        showNotification('Command copied to clipboard!', 'success');
+                        
+                        // Reset button after 2 seconds
+                        setTimeout(() => {
+                            this.innerHTML = originalHTML;
+                            this.classList.remove('copied');
+                        }, 2000);
+                    }).catch(err => {
+                        showNotification('Error copying command: ' + err, 'error');
+                    });
+                }
+            });
+        }
+    }
+    
+    // Create command step element
+    function createCommandStep(cmd) {
+        const step = document.createElement('div');
+        step.className = 'command-step';
+        
+        // Create description
+        const descriptionDiv = document.createElement('div');
+        descriptionDiv.className = 'step-description';
+        descriptionDiv.innerHTML = `
+            <i class="fas fa-info-circle"></i>
+            <span>${cmd.description}</span>
+        `;
+        step.appendChild(descriptionDiv);
+        
+        // Create command wrapper
+        const commandWrapper = document.createElement('div');
+        commandWrapper.className = 'command-wrapper';
+        
+        // Create terminal
+        const terminal = document.createElement('div');
+        terminal.className = 'command-terminal';
+        terminal.innerHTML = `
+            <div class="terminal-header">
+                <div class="terminal-controls">
+                    <span class="terminal-dot terminal-red"></span>
+                    <span class="terminal-dot terminal-yellow"></span>
+                    <span class="terminal-dot terminal-green"></span>
+                </div>
+                <div class="terminal-title">terminal</div>
+            </div>
+            <div class="terminal-body">
+                <div class="terminal-line">
+                    <span class="terminal-prompt">$</span>
+                    <code class="terminal-command">${escapeHtml(cmd.command)}</code>
+                </div>
+            </div>
+        `;
+        commandWrapper.appendChild(terminal);
+        
+        // Create copy button
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'copy-terminal-btn';
+        copyBtn.setAttribute('data-command', cmd.command);
+        copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+        commandWrapper.appendChild(copyBtn);
+        
+        step.appendChild(commandWrapper);
+        
+        return step;
+    }
+    
+    // Escape HTML to prevent issues with special characters
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // Initialize copy buttons for terminal commands
+    function initializeCopyButtons() {
+        const copyButtons = document.querySelectorAll('.copy-terminal-btn');
+        
+        copyButtons.forEach(button => {
+            // Remove existing event listener to prevent duplicates
+            const newButton = button.cloneNode(true);
+            button.parentNode.replaceChild(newButton, button);
+            
+            // Add event listener to the new button
+            newButton.addEventListener('click', function() {
+                const command = this.getAttribute('data-command');
+                if (command) {
+                    navigator.clipboard.writeText(command).then(() => {
+                        // Show success feedback
+                        const originalHTML = this.innerHTML;
+                        this.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                        this.classList.add('copied');
+                        
+                        showNotification('Command copied to clipboard!', 'success');
+                        
+                        // Reset button after 2 seconds
+                        setTimeout(() => {
+                            this.innerHTML = originalHTML;
+                            this.classList.remove('copied');
+                        }, 2000);
+                    }).catch(err => {
+                        showNotification('Error copying command: ' + err, 'error');
+                    });
+                }
+            });
+        });
+    }
+    
+    // Initialize copy buttons on page load
+    initializeCopyButtons();
     
     let cubeAnimationInterval;
     
@@ -195,7 +254,6 @@ chmod +x install.sh
                 <span>${message}</span>
             </div>
         `;
-        
         
         // Add notification styles
         const style = document.createElement('style');

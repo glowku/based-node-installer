@@ -242,36 +242,40 @@ body {
     align-items: center;
     margin-bottom: 15px;
 }
-.copy-btn {
-    background: rgba(0, 255, 255, 0.2);
-    border: 1px solid var(--primary-color);
-    border-radius: 6px;
-    padding: 8px 15px;
-    color: var(--primary-color);
-    font-family: 'Orbitron', monospace;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
+.command-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.command-step {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.5s ease forwards;
+}
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.step-description {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    background: rgba(0, 255, 255, 0.1);
+    border-left: 3px solid var(--primary-color);
+    border-radius: 6px;
+    color: var(--primary-color);
+    font-size: 0.9rem;
 }
-.copy-btn:hover {
-    background: rgba(0, 255, 255, 0.3);
-}
-.command-box {
-    background: rgba(0, 0, 0, 0.5);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 15px;
-    overflow-x: auto;
-}
-.command-box code {
-    font-family: 'Courier New', monospace;
-    color: var(--success-color);
-    font-size: 1rem;
-    white-space: pre-wrap;
-    word-break: break-all;
+.step-description i {
+    color: var(--primary-color);
 }
 .system-specific-commands {
     margin-bottom: 30px;
@@ -328,78 +332,169 @@ body {
     text-transform: uppercase;
     letter-spacing: 1px;
 }
-.command-line {
+
+/* Styles pour les commentaires */
+.comment-block {
     display: flex;
     align-items: center;
+    gap: 10px;
     margin-bottom: 10px;
-    padding: 8px;
-    background: rgba(0, 0, 0, 0.3);
+    padding: 8px 12px;
+    background: rgba(40, 40, 50, 0.6);
+    border-left: 3px solid #555;
     border-radius: 6px;
-}
-.command-line code {
-    flex: 1;
-    font-family: 'Courier New', monospace;
-    color: var(--success-color);
+    color: #9aa0b8;
+    font-style: italic;
     font-size: 0.9rem;
 }
-/* Style for comment lines */
-.command-line code {
-    color: var(--success-color);
-}
-.command-line.comment code {
-    color: #888888 !important;
-    font-style: italic;
-    opacity: 0.7;
-}
-.copy-line-btn {
-    background: rgba(0, 255, 255, 0.2);
-    border: 1px solid var(--primary-color);
-    border-radius: 4px;
-    padding: 5px 8px;
-    color: var(--primary-color);
-    cursor: pointer;
-    transition: all 0.3s ease;
+
+.comment-block i {
+    color: #555;
     font-size: 0.8rem;
-    margin-left: 10px;
 }
-.copy-line-btn:hover {
-    background: rgba(0, 255, 255, 0.3);
+
+/* Styles pour les conteneurs de commandes */
+.command-wrapper {
+    display: flex;
+    align-items: stretch;
+    margin-bottom: 15px;
+    gap: 10px;
 }
-.command-example {
-    background: rgba(0, 0, 0, 0.3);
+
+/* Styles pour le terminal */
+.command-terminal {
+    flex: 1;
+    background: #1e1e1e;
     border-radius: 8px;
-    padding: 10px;
-    margin-bottom: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.terminal-header {
     display: flex;
     align-items: center;
-    gap: 15px;
+    justify-content: space-between;
+    background: #2d2d2d;
+    padding: 8px 12px;
+    border-bottom: 1px solid #444;
 }
-.command-example code {
+
+.terminal-controls {
+    display: flex;
+    gap: 6px;
+}
+
+.terminal-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.terminal-red {
+    background: #ff5f56;
+}
+
+.terminal-yellow {
+    background: #ffbd2e;
+}
+
+.terminal-green {
+    background: #27c93f;
+}
+
+.terminal-title {
+    color: #888;
+    font-size: 0.75rem;
+    font-family: monospace;
+}
+
+.terminal-body {
+    padding: 12px;
+    background: #1e1e1e;
+}
+
+.terminal-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     font-family: 'Courier New', monospace;
-    color: var(--success-color);
+}
+
+.terminal-prompt {
+    color: #27c93f;
+    font-weight: bold;
+}
+
+.terminal-command {
+    color: #4ade80;
     font-size: 0.9rem;
     flex: 1;
 }
-.command-example .command-desc {
-    color: var(--secondary-color);
-    font-size: 0.9rem;
+
+/* Styles pour les informations de commande */
+.command-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 150px;
+}
+
+.command-desc {
+    color: #94a3b8;
+    font-size: 0.85rem;
+    margin-bottom: 8px;
     font-style: italic;
 }
-.copy-example-btn {
-    background: rgba(0, 255, 255, 0.2);
-    border: 1px solid var(--primary-color);
-    border-radius: 4px;
-    padding: 5px 10px;
-    color: var(--primary-color);
+
+/* Styles pour les boutons de copie */
+.copy-terminal-btn {
+    background: rgba(0, 255, 255, 0.1);
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: #00ffff;
     font-family: 'Orbitron', monospace;
-    font-weight: 500;
+    font-size: 0.8rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
 }
-.copy-example-btn:hover {
-    background: rgba(0, 255, 255, 0.3);
+
+.copy-terminal-btn:hover {
+    background: rgba(0, 255, 255, 0.2);
+    border-color: rgba(0, 255, 255, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 255, 255, 0.2);
 }
+
+.copy-terminal-btn:active {
+    transform: translateY(0);
+}
+
+.copy-terminal-btn.copied {
+    background: rgba(74, 222, 128, 0.2);
+    border-color: #4ade80;
+    color: #4ade80;
+}
+
+.copy-terminal-btn i {
+    font-size: 0.9rem;
+}
+
+/* Animation pour le bouton copié */
+@keyframes copySuccess {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.copy-terminal-btn.copied {
+    animation: copySuccess 0.4s ease-in-out;
+}
+
 .installation-steps,
 .requirements-info,
 .support-info {
@@ -599,10 +694,6 @@ body {
         align-items: flex-start;
     }
     
-    .copy-btn {
-        align-self: flex-end;
-    }
-    
     .tabs {
         flex-direction: column;
     }
@@ -617,15 +708,19 @@ body {
         display: none;
     }
     
-    .command-line {
+    .command-wrapper {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
     }
     
-    .command-example {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
+    .command-info {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        min-width: 100%;
+        margin-top: 10px;
+    }
+    
+    .step-description {
+        font-size: 0.8rem;
     }
 }
