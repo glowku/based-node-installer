@@ -163,6 +163,39 @@ install_dependencies() {
 
 install_dependencies
 
+# Création de l'utilisateur dédié (déplacé avant l'installation de Rust)
+create_user() {
+    echo "👤 Création de l'utilisateur 'basedai'..."
+    
+    case "$OS_TYPE" in
+        "ubuntu"|"debian"|"wsl")
+            if ! id "basedai" &>/dev/null; then
+                sudo useradd -m -s /bin/bash basedai
+                sudo usermod -aG docker basedai
+            else
+                echo "L'utilisateur 'basedai' existe déjà."
+            fi
+            ;;
+        "macos")
+            if ! id "basedai" &>/dev/null; then
+                sudo sysadminctl -addUser basedai
+                echo "Veuillez ajouter manuellement l'utilisateur 'basedai' au groupe docker:"
+                echo "sudo dscl . append /Groups/docker GroupMembership basedai"
+            else
+                echo "L'utilisateur 'basedai' existe déjà."
+            fi
+            ;;
+        "windows")
+            echo "⚠️  Sur Windows, la création d'utilisateur est différente. Veuillez créer l'utilisateur manuellement."
+            ;;
+        *)
+            echo "❌ Système d'exploitation non pris en charge: $OS_TYPE"
+            ;;
+    esac
+}
+
+create_user
+
 # Installation de Rust et Cargo pour la compilation
 install_rust() {
     echo "🔧 Installation de Rust et Cargo..."
@@ -195,38 +228,8 @@ install_rust() {
 }
 
 install_rust
-configure_cargo_path
 
-# Création de l'utilisateur dédié
-create_user() {
-    echo "👤 Création de l'utilisateur 'basedai'..."
-    
-    case "$OS_TYPE" in
-        "ubuntu"|"debian"|"wsl")
-            if ! id "basedai" &>/dev/null; then
-                sudo useradd -m -s /bin/bash basedai
-                sudo usermod -aG docker basedai
-            else
-                echo "L'utilisateur 'basedai' existe déjà."
-            fi
-            ;;
-        "macos")
-            if ! id "basedai" &>/dev/null; then
-                sudo sysadminctl -addUser basedai
-                echo "Veuillez ajouter manuellement l'utilisateur 'basedai' au groupe docker:"
-                echo "sudo dscl . append /Groups/docker GroupMembership basedai"
-            else
-                echo "L'utilisateur 'basedai' existe déjà."
-            fi
-            ;;
-        "windows")
-            echo "⚠️  Sur Windows, la création d'utilisateur est différente. Veuillez créer l'utilisateur manuellement."
-            ;;
-        *)
-            echo "❌ Système d'exploitation non pris en charge: $OS_TYPE"
-            ;;
-    esac
-}
+# Après la fonction install_rust, ajoutez la fonction configure_cargo_path :
 
 configure_cargo_path() {
     echo "🛠️  Configuration du PATH pour Cargo..."
@@ -249,7 +252,8 @@ configure_cargo_path() {
     echo "✅ PATH configuré pour Cargo"
 }
 
-create_user
+# Puis appelez-la
+configure_cargo_path
 
 # Création des répertoires
 create_directories() {
@@ -285,6 +289,8 @@ download_and_compile_binary() {
             
             # Créer un répertoire temporaire pour la compilation
             BUILD_DIR="/tmp/basednode-build"
+            # Supprimer le répertoire s'il existe déjà
+            sudo rm -rf "$BUILD_DIR"
             sudo -u basedai mkdir -p "$BUILD_DIR"
             cd "$BUILD_DIR"
             
@@ -345,7 +351,7 @@ apply_substrate_fix() {
     echo "🔧 Application du fix pour l'enum Message..."
     
     # Trouver le dossier substrate dans ~/.cargo/git/checkouts/
-    CARGO_DIR="$HOME/.cargo/git/checkouts"
+    CARGO_DIR="/home/basedai/.cargo/git/checkouts"
     if [ ! -d "$CARGO_DIR" ]; then
         echo "⚠️  Le dossier ~/.cargo/git/checkouts/ n'existe pas encore. Le fix sera appliqué plus tard si nécessaire."
         return 0
