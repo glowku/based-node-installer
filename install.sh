@@ -167,24 +167,27 @@ install_dependencies
 install_rust() {
     echo "🔧 Installation de Rust et Cargo..."
     
-    if command -v cargo &> /dev/null; then
-        echo "✅ Rust/Cargo est déjà installé"
+    # Vérifier si Rust est déjà installé pour l'utilisateur basedai
+    if sudo -u basedai bash -c "source ~/.cargo/env && cargo --version" > /dev/null 2>&1; then
+        echo "✅ Rust/Cargo est déjà installé pour l'utilisateur basedai"
         return 0
     fi
     
-    # Installation de Rust via rustup
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-    source ~/.cargo/env
+    # Installation de Rust via rustup pour l'utilisateur basedai
+    sudo -u basedai bash -c "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y"
     
     # Configuration de Rust pour BF1337/basednode
-    rustup default stable
-    rustup update
-    rustup toolchain install nightly-2025-01-07
-    rustup target add wasm32-unknown-unknown --toolchain nightly-2025-01-07
+    sudo -u basedai bash -c "source ~/.cargo/env && rustup default stable"
+    sudo -u basedai bash -c "source ~/.cargo/env && rustup update"
+    sudo -u basedai bash -c "source ~/.cargo/env && rustup toolchain install nightly-2025-01-07"
+    sudo -u basedai bash -c "source ~/.cargo/env && rustup target add wasm32-unknown-unknown --toolchain nightly-2025-01-07"
+    
+    # Ajouter le PATH au .bashrc de l'utilisateur basedai
+    echo 'export PATH="$HOME/.cargo/bin:$PATH"' | sudo -u basedai tee -a /home/basedai/.bashrc > /dev/null
     
     # Vérification de l'installation
-    if command -v cargo &> /dev/null; then
-        echo "✅ Rust/Cargo a été installé avec succès"
+    if sudo -u basedai bash -c "source ~/.cargo/env && cargo --version" > /dev/null 2>&1; then
+        echo "✅ Rust/Cargo a été installé avec succès pour l'utilisateur basedai"
     else
         echo "❌ L'installation de Rust/Cargo a échoué"
         return 1
@@ -192,6 +195,7 @@ install_rust() {
 }
 
 install_rust
+configure_cargo_path
 
 # Création de l'utilisateur dédié
 create_user() {
@@ -222,6 +226,27 @@ create_user() {
             echo "❌ Système d'exploitation non pris en charge: $OS_TYPE"
             ;;
     esac
+}
+
+configure_cargo_path() {
+    echo "🛠️  Configuration du PATH pour Cargo..."
+    
+    # Créer un lien symbolique dans /usr/local/bin pour que sudo puisse trouver cargo
+    if [ ! -f "/usr/local/bin/cargo" ]; then
+        sudo ln -sf /home/basedai/.cargo/bin/cargo /usr/local/bin/cargo
+        echo "✅ Lien symbolique pour cargo créé dans /usr/local/bin"
+    fi
+    
+    if [ ! -f "/usr/local/bin/rustc" ]; then
+        sudo ln -sf /home/basedai/.cargo/bin/rustc /usr/local/bin/rustc
+        echo "✅ Lien symbolique pour rustc créé dans /usr/local/bin"
+    fi
+    
+    # Ajouter le PATH au profil système pour les sessions futures
+    echo 'export PATH="/home/basedai/.cargo/bin:$PATH"' | sudo tee /etc/profile.d/cargo.sh > /dev/null
+    sudo chmod +x /etc/profile.d/cargo.sh
+    
+    echo "✅ PATH configuré pour Cargo"
 }
 
 create_user
@@ -278,7 +303,7 @@ download_and_compile_binary() {
                 
                 # Compiler le binaire avec la toolchain spécifique
                 echo "Compilation du binaire (cela peut prendre plusieurs minutes)..."
-                if sudo -u basedai cargo +nightly-2025-01-07 build --release; then
+                if sudo -u basedai bash -c "source ~/.cargo/env && cargo +nightly-2025-01-07 build --release"; then
                     echo "✅ Compilation réussie!"
                     
                     # Copier le binaire compilé
