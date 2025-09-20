@@ -31,36 +31,6 @@ echo -e "\e[0m"
 echo "                                                                      \e[36mNODE PROFESSIONAL INSTALLER\e[0m"
 echo ""
 
-# Nettoyage complet de l'installation précédente
-cleanup_previous_installation() {
-    echo "🧹 Nettoyage complet de l'installation précédente..."
-    
-    # Arrêter le service s'il existe
-    if systemctl is-active --quiet basedai; then
-        sudo systemctl stop basedai
-        sudo systemctl disable basedai
-    fi
-    
-    # Supprimer le service systemd
-    if [ -f "/etc/systemd/system/basedai.service" ]; then
-        sudo rm -f /etc/systemd/system/basedai.service
-        sudo systemctl daemon-reload
-    fi
-    
-    # Supprimer l'utilisateur et ses fichiers
-    if id "basedai" &>/dev/null; then
-        sudo userdel -r basedai 2>/dev/null || echo "L'utilisateur basedai n'a pas pu être supprimé complètement"
-    fi
-    
-    # Supprimer les répertoires
-    sudo rm -rf /opt/basedai /tmp/basednode-build /home/basedai
-    
-    # Supprimer les liens symboliques
-    sudo rm -f /usr/local/bin/cargo /usr/local/bin/rustc /etc/profile.d/cargo.sh
-    
-    echo "✅ Nettoyage terminé"
-}
-
 # Détection du système d'exploitation
 detect_os() {
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
@@ -137,9 +107,6 @@ check_privileges() {
 }
 
 check_privileges
-
-# Nettoyage de l'installation précédente
-cleanup_previous_installation
 
 # Mise à jour du système
 update_system() {
