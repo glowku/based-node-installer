@@ -31,6 +31,36 @@ echo -e "\e[0m"
 echo "                                                                      \e[36mNODE PROFESSIONAL INSTALLER\e[0m"
 echo ""
 
+# Nettoyage complet de l'installation précédente
+cleanup_previous_installation() {
+    echo "🧹 Nettoyage complet de l'installation précédente..."
+    
+    # Arrêter le service s'il existe
+    if systemctl is-active --quiet basedai; then
+        sudo systemctl stop basedai
+        sudo systemctl disable basedai
+    fi
+    
+    # Supprimer le service systemd
+    if [ -f "/etc/systemd/system/basedai.service" ]; then
+        sudo rm -f /etc/systemd/system/basedai.service
+        sudo systemctl daemon-reload
+    fi
+    
+    # Supprimer l'utilisateur et ses fichiers
+    if id "basedai" &>/dev/null; then
+        sudo userdel -r basedai 2>/dev/null || echo "L'utilisateur basedai n'a pas pu être supprimé complètement"
+    fi
+    
+    # Supprimer les répertoires
+    sudo rm -rf /opt/basedai /tmp/basednode-build /home/basedai
+    
+    # Supprimer les liens symboliques
+    sudo rm -f /usr/local/bin/cargo /usr/local/bin/rustc /etc/profile.d/cargo.sh
+    
+    echo "✅ Nettoyage terminé"
+}
+
 # Détection du système d'exploitation
 detect_os() {
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
@@ -108,6 +138,9 @@ check_privileges() {
 
 check_privileges
 
+# Nettoyage de l'installation précédente
+cleanup_previous_installation
+
 # Mise à jour du système
 update_system() {
     echo "🔄 Mise à jour du système..."
@@ -146,10 +179,11 @@ install_dependencies() {
     case "$OS_TYPE" in
         "ubuntu"|"debian"|"wsl")
             sudo apt-get install -y git curl wget jq software-properties-common apt-transport-https ca-certificates gnupg2 \
-            build-essential clang libclang-dev llvm libudev-dev protobuf-compiler
+            build-essential clang libclang-dev llvm libudev-dev protobuf-compiler pkg-config libssl-dev \
+            python3 python3-pip npm nodejs
             ;;
         "macos")
-            brew install curl wget jq git clang llvm protobuf
+            brew install curl wget jq git clang llvm protobuf python3 npm nodejs
             ;;
         "windows")
             echo "⚠️  Sur Windows, veuillez installer les dépendances manuellement."
@@ -171,7 +205,7 @@ create_user() {
         "ubuntu"|"debian"|"wsl")
             if ! id "basedai" &>/dev/null; then
                 sudo useradd -m -s /bin/bash basedai
-                sudo usermod -aG docker basedai
+                sudo usermod -aG docker basedai 2>/dev/null || echo "Groupe docker non trouvé, ignoré"
             else
                 echo "L'utilisateur 'basedai' existe déjà."
             fi
@@ -229,8 +263,7 @@ install_rust() {
 
 install_rust
 
-# Après la fonction install_rust, ajoutez la fonction configure_cargo_path :
-
+# Configuration du PATH pour Cargo
 configure_cargo_path() {
     echo "🛠️  Configuration du PATH pour Cargo..."
     
@@ -252,7 +285,6 @@ configure_cargo_path() {
     echo "✅ PATH configuré pour Cargo"
 }
 
-# Puis appelez-la
 configure_cargo_path
 
 # Création des répertoires
@@ -278,73 +310,6 @@ create_directories() {
 }
 
 create_directories
-
-# Téléchargement et compilation du binaire BasedAI depuis BF1337/basednode
-download_and_compile_binary() {
-    echo "⬇️  Téléchargement et compilation de BF1337/basednode..."
-    
-    case "$OS_TYPE" in
-        "ubuntu"|"debian"|"wsl"|"macos")
-            cd /opt/basedai
-            
-            # Créer un répertoire temporaire pour la compilation
-            BUILD_DIR="/tmp/basednode-build"
-            # Supprimer le répertoire s'il existe déjà
-            sudo rm -rf "$BUILD_DIR"
-            sudo -u basedai mkdir -p "$BUILD_DIR"
-            cd "$BUILD_DIR"
-            
-            # Cloner le dépôt BF1337/basednode
-            echo "Clonage du dépôt BF1337/basednode..."
-            if sudo -u basedai git clone https://github.com/BF1337/basednode.git .; then
-                echo "✅ Dépôt cloné avec succès"
-                
-                # Appliquer le fix pour l'enum Message dans Substrate
-                echo "Application du fix pour l'enum Message..."
-                apply_substrate_fix
-                
-                # Télécharger le fichier mainnet1_raw.json nécessaire
-                echo "Téléchargement du fichier mainnet1_raw.json..."
-                sudo -u basedai curl -o mainnet1_raw.json https://raw.githubusercontent.com/BF1337/basednode/main/mainnet1_raw.json
-                
-                # Compiler le binaire avec la toolchain spécifique
-                echo "Compilation du binaire (cela peut prendre plusieurs minutes)..."
-                if sudo -u basedai bash -c "source ~/.cargo/env && cargo +nightly-2025-01-07 build --release"; then
-                    echo "✅ Compilation réussie!"
-                    
-                    # Copier le binaire compilé
-                    if [ -f "target/release/basednode" ]; then
-                        sudo -u basedai cp target/release/basednode /opt/basedai/based
-                        echo "✅ Binaire copié avec succès"
-                    else
-                        echo "❌ Binaire compilé non trouvé"
-                        exit 1
-                    fi
-                else
-                    echo "❌ Échec de la compilation"
-                    exit 1
-                fi
-            else
-                echo "❌ Échec du clonage du dépôt"
-                exit 1
-            fi
-            
-            # Copier le fichier mainnet1_raw.json dans le répertoire de config
-            sudo -u basedai cp mainnet1_raw.json /opt/basedai/config/
-            
-            # Nettoyer le répertoire temporaire
-            cd /opt/basedai
-            sudo rm -rf "$BUILD_DIR"
-            ;;
-        "windows")
-            echo "⚠️  Sur Windows, veuillez compiler manuellement."
-            ;;
-        *)
-            echo "❌ Système d'exploitation non pris en charge: $OS_TYPE"
-            exit 1
-            ;;
-    esac
-}
 
 # Fonction pour appliquer le fix de l'enum Message
 apply_substrate_fix() {
@@ -447,6 +412,149 @@ EOF
     else
         echo "❌ Échec de l'application du fix"
     fi
+}
+
+# Fonction pour appliquer le fix basednode manuellement
+apply_fix_basednode_manuel() {
+    echo "🔧 Application du fix basednode manuel..."
+    
+    # Trouver le fichier src/lib.rs dans le répertoire de compilation
+    BUILD_DIR="/tmp/basednode-build"
+    LIB_RS_FILE="$BUILD_DIR/src/lib.rs"
+    
+    if [ ! -f "$LIB_RS_FILE" ]; then
+        echo "⚠️  Fichier src/lib.rs non trouvé. Le fix ne peut pas être appliqué."
+        return 1
+    fi
+    
+    # Faire une sauvegarde
+    BACKUP_FILE="$LIB_RS_FILE.backup.$(date +%Y%m%d_%H%M%S)"
+    cp "$LIB_RS_FILE" "$BACKUP_FILE"
+    echo "Sauvegarde créée: $BACKUP_FILE"
+    
+    # Appliquer le patch
+    python3 << EOF
+import re
+import sys
+
+with open('$LIB_RS_FILE', 'r') as f:
+    content = f.read()
+
+# Fix pour le problème de compilation
+# Remplacer les imports problématiques
+content = re.sub(r'use substrate::.*;', '', content)
+
+# Ajouter les bons imports
+if 'use frame_support::' not in content:
+    content = 'use frame_support::{dispatch::DispatchResult, pallet_prelude::*};\n' + content
+
+if 'use frame_system::' not in content:
+    content = 'use frame_system::{pallet_prelude::*};\n' + content
+
+with open('$LIB_RS_FILE', 'w') as f:
+    f.write(content)
+
+print("✅ Fix manuel appliqué avec succès")
+EOF
+    
+    if [ $? -eq 0 ]; then
+        echo "✅ Fix manuel appliqué avec succès"
+        return 0
+    else
+        echo "❌ Échec de l'application du fix manuel"
+        return 1
+    fi
+}
+
+# Téléchargement et compilation du binaire BasedAI depuis BF1337/basednode
+download_and_compile_binary() {
+    echo "⬇️  Téléchargement et compilation de BF1337/basednode..."
+    
+    case "$OS_TYPE" in
+        "ubuntu"|"debian"|"wsl"|"macos")
+            cd /opt/basedai
+            
+            # Créer un répertoire temporaire pour la compilation
+            BUILD_DIR="/tmp/basednode-build"
+            # Supprimer le répertoire s'il existe déjà
+            sudo rm -rf "$BUILD_DIR"
+            sudo -u basedai mkdir -p "$BUILD_DIR"
+            cd "$BUILD_DIR"
+            
+            # Cloner le dépôt BF1337/basednode
+            echo "Clonage du dépôt BF1337/basednode..."
+            if sudo -u basedai git clone https://github.com/BF1337/basednode.git .; then
+                echo "✅ Dépôt cloné avec succès"
+                
+                # Télécharger le fichier mainnet1_raw.json nécessaire
+                echo "Téléchargement du fichier mainnet1_raw.json..."
+                sudo -u basedai curl -o mainnet1_raw.json https://raw.githubusercontent.com/BF1337/basednode/main/mainnet1_raw.json
+                
+                # Compiler le binaire avec la toolchain spécifique
+                echo "Compilation du binaire (cela peut prendre plusieurs minutes)..."
+                
+                # Première tentative de compilation
+                if sudo -u basedai bash -c "source ~/.cargo/env && cargo +nightly-2025-01-07 build --release"; then
+                    echo "✅ Compilation réussie!"
+                    
+                    # Copier le binaire compilé
+                    if [ -f "target/release/basednode" ]; then
+                        sudo -u basedai cp target/release/basednode /opt/basedai/based
+                        echo "✅ Binaire copié avec succès"
+                    else
+                        echo "❌ Binaire compilé non trouvé"
+                        exit 1
+                    fi
+                else
+                    echo "❌ Échec de la compilation, tentative avec solution alternative..."
+                    
+                    # Solution alternative 1: Nettoyer et recompiler
+                    echo "Solution alternative 1: Nettoyage et recompilation..."
+                    sudo -u basedai bash -c "source ~/.cargo/env && cargo clean"
+                    
+                    # Solution alternative 2: Appliquer le fix manuel
+                    echo "Solution alternative 2: Application du fix manuel..."
+                    apply_fix_basednode_manuel
+                    
+                    # Solution alternative 3: Compilation avec moins de parallélisation
+                    echo "Solution alternative 3: Compilation avec moins de parallélisation..."
+                    if sudo -u basedai bash -c "source ~/.cargo/env && cargo +nightly-2025-01-07 build --release --jobs 1"; then
+                        echo "✅ Compilation réussie avec solution alternative!"
+                        
+                        # Copier le binaire compilé
+                        if [ -f "target/release/basednode" ]; then
+                            sudo -u basedai cp target/release/basednode /opt/basedai/based
+                            echo "✅ Binaire copié avec succès"
+                        else
+                            echo "❌ Binaire compilé non trouvé"
+                            exit 1
+                        fi
+                    else
+                        echo "❌ Échec de la compilation avec toutes les solutions alternatives"
+                        echo "Veuillez vérifier les erreurs ci-dessus et consulter la documentation"
+                        exit 1
+                    fi
+                fi
+            else
+                echo "❌ Échec du clonage du dépôt"
+                exit 1
+            fi
+            
+            # Copier le fichier mainnet1_raw.json dans le répertoire de config
+            sudo -u basedai cp mainnet1_raw.json /opt/basedai/config/
+            
+            # Nettoyer le répertoire temporaire
+            cd /opt/basedai
+            sudo rm -rf "$BUILD_DIR"
+            ;;
+        "windows")
+            echo "⚠️  Sur Windows, veuillez compiler manuellement."
+            ;;
+        *)
+            echo "❌ Système d'exploitation non pris en charge: $OS_TYPE"
+            exit 1
+            ;;
+    esac
 }
 
 download_and_compile_binary
