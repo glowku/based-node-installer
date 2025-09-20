@@ -83,6 +83,49 @@ document.addEventListener('DOMContentLoaded', function() {
             updateServerStatus('Ready', 'ready');
         }
     }
+
+    // Fonction pour vérifier la compatibilité avec BF1337/basednode
+function checkBF1337Compatibility() {
+    console.log("Vérification de la compatibilité avec BF1337/basednode...");
+    
+    // Vérifier si le endpoint RPC est accessible
+    fetch('http://localhost:9933', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            "jsonrpc": "2.0",
+            "method": "system_health",
+            "params": [],
+            "id": 1
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.result) {
+            console.log("✅ BF1337/basednode RPC accessible");
+            updateServerStatus('Online', 'online');
+        } else {
+            console.log("❌ BF1337/basednode RPC non accessible");
+            updateServerStatus('Offline', 'offline');
+        }
+    })
+    .catch(error => {
+        console.error("Erreur lors de la vérification BF1337/basednode:", error);
+        updateServerStatus('Offline', 'offline');
+    });
+}
+
+// Appeler la fonction de compatibilité au chargement
+document.addEventListener('DOMContentLoaded', function() {
+    // ... code existant ...
+    
+    // Ajouter cette ligne
+    checkBF1337Compatibility();
+    
+    // ... reste du code ...
+});
     
     // Update statistics
     function updateStats() {
